@@ -1,21 +1,38 @@
-import React from 'react';
-// import heroImg from '../assets/images/hero-banner.png'; // Use correct image path
+import React from "react";
+import "./HeroSection.css";
+import heroImg from "../assets/herosection.png"; // replace with your actual image
 
 const HeroSection = () => {
   return (
-    <section className="bg-gradient text-white py-5" style={{ background: 'linear-gradient(135deg, #00c6ff, #0072ff)' }}>
-      <div className="container d-flex flex-column flex-md-row align-items-center">
-        <div className="col-md-6">
-          <h1 className="display-4 fw-bold">Ask . Answer . Evolve</h1>
-          <p className="lead mt-3">A clean, intelligent Q&A platform for coders, students, and communities.</p>
-          <p>Collaborate, solve problems, and build knowledge — all in one user-friendly space.</p>
-          <div className="d-flex gap-3 mt-4">
-            <button className="btn btn-info btn-lg">Get Started</button>
-            <button className="btn btn-warning btn-lg">Explore Q & A</button>
+    <section className="hero-section text-dark d-flex align-items-center">
+      <div className="container">
+        <div className="row align-items-center">
+          {/* Left: Text Content */}
+          <div className="col-md-6 text-center text-md-start">
+            <h1 className="hero-title">Ask. Answer. Evolve.</h1>
+            <h2 className="hero-subtitle">
+              A clean, intelligent Q&A platform for coders, students, and
+              communities.
+            </h2>
+            <p className="hero-description">
+              Collaborate, solve problems, and build knowledge — all in one
+              fast, responsive, and user-friendly space tailored for technical
+              discussions.
+            </p>
+            <div className="mt-4 d-flex flex-wrap justify-content-center justify-content-md-start gap-3">
+              <button className="btn-cta-start">Get Started</button>
+              <button className="btn-cta-explore">Explore Q & A</button>
+            </div>
           </div>
-        </div>
-        <div className="col-md-6 text-center mt-4 mt-md-0">
-          <img src={heroImg} alt="Hero Visual" className="img-fluid" />
+
+          {/* Right: Hero Image */}
+          <div className="col-md-6 text-center mt-4 mt-md-0">
+            <img
+              src={heroImg}
+              alt="Programmer Working"
+              className="img-fluid hero-image"
+            />
+          </div>
         </div>
       </div>
     </section>

@@ -1,74 +1,121 @@
-/* Navbar.css */
-
-/* Container Styling */
-.navbar {
-  background-color: #ffffff;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  padding: 0.5rem 1.5rem;
-  z-index: 10;
-  position: sticky;
-  top: 0;
+/* Gradient Background & Shadow */
+.navbar-gradient {
+  background: linear-gradient(180deg, rgba(41, 193, 226, 0.1) 0%, rgba(31, 31, 31, 0.1) 100%);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
 }
-
-/* Brand logo styling */
-.navbar-brand {
-  font-weight: 700;
-  font-size: 1.25rem;
+/* Layout containers */
+.navbar-left {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
 }
 
-.navbar-brand img {
-  height: 32px;
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+/* Logo */
+.navbar-logo {
+  width: 75px;
+  height: 75px;
+  object-fit: cover;
 }
 
-/* Nav links */
-.navbar-nav .nav-link {
-  color: #2d2d2d;
-  font-weight: 500;
-  margin-right: 1rem;
-  transition: color 0.2s ease-in-out;
+/* Brand Title */
+.navbar-title {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0.05rem;
 }
 
-.navbar-nav .nav-link:hover {
-  color: #00bcd4;
-}
-
-/* Login and Register buttons */
-.navbar-btn {
-  margin-left: 1rem;
+/* Nav Links */
+.nav-link-custom {
+  font-size: 1.125rem;
   font-weight: 600;
-  padding: 0.4rem 1rem;
-  border-radius: 20px;
-  transition: background-color 0.3s ease;
-  border: none;
+  color: #333;
+  text-decoration: none;
+  transition: color 0.3s ease;
 }
 
+.nav-link-custom:hover {
+  color: #0f869c;
+}
+
+/* Auth Buttons */
 .btn-login {
-  background-color: #e8f6ff;
-  color: #0099cc;
+  background-color: #29c1e2;
+  color: white;
+  width: 135px;
+  height: 48px;
+  font-size: 16px;
+  font-weight: 500;
+  text-decoration: none;
+  border: none;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 11px 18px;
+  transition: background-color 0.3s ease;
 }
 
 .btn-login:hover {
-  background-color: #d4efff;
+  background-color: #1cafcf;
+  box-shadow: 0px 4px 10px rgba(41, 193, 226, 0.05);
 }
 
 .btn-register {
-  background-color: #ffc107;
-  color: #ffffff;
+  background-color: #ffc857;
+  color: #1f1f1f;
+  width: 135px;
+  height: 48px;
+  font-size: 16px;
+  font-weight: 500;
+  text-decoration: none;
+  border: none;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 11px 18px;
+  transition: background-color 0.3s ease;
 }
 
 .btn-register:hover {
-  background-color: #e6ac00;
+  background-color: #e6b03f;
+  box-shadow: 0px 4px 10px rgba(255, 200, 87, 0.05);
 }
 
-/* Responsive nav toggle */
+
+/* Toggler for mobile */
 .navbar-toggler {
+  background: none;
   border: none;
-  outline: none;
+  font-size: 68px;
+  cursor: pointer;
+  color: #1f1f1f;
 }
 
 .navbar-toggler:focus {
-  box-shadow: none;
+  outline: none;
+}
+
+.navbar-collapse {
+  background-color: white;
+  padding: 15px 0;
+  border-top: 1px solid #ddd;
+}
+
+/* Responsive text alignment */
+@media (max-width: 991px) {
+  .navbar-title {
+    font-size: 1.5rem;
+  }
+
+  .btn-login,
+  .btn-register {
+    width: 100%;
+    max-width: 240px;
+    margin: 0 auto;
+  }
 }

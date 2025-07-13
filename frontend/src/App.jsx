@@ -8,11 +8,11 @@ const App = () => {
   return (
     <>
     <Router>
-      <Navbar />
+      {/* <Navbar /> */}
       <main className="flex-grow-1">
         <AppRoutes />
       </main>
-      <Footer />
+      {/* <Footer /> */}
     </Router>
     </>
     

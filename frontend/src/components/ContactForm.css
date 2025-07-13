@@ -1,0 +1,81 @@
+/* Contact Section Layout */
+.contact-section {
+  background: linear-gradient(to right, #0f2027, #203a43, #2c5364); /* Dark blue gradient */
+  color: #ffffff;
+  padding: 3rem 0;
+}
+
+/* Left: Info Section */
+.contact-info h4 {
+  color: #29c1e2;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.contact-info p {
+  color: #dcdcdc;
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.contact-info strong {
+  color: #ffffff;
+}
+
+.contact-info i {
+  margin-right: 0.5rem;
+}
+
+/* Right: Form Styling */
+.contact-form {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 500px;
+  color: #ffffff;
+  backdrop-filter: blur(10px);
+}
+
+/* Input Fields */
+.contact-form input,
+.contact-form textarea {
+  background: linear-gradient(135deg, #29c1e2, #1cafcf);
+  border: none;
+  color: white;
+  font-size: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 999px;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.contact-form input::placeholder,
+.contact-form textarea::placeholder {
+  color: #ffffff;
+  opacity: 0.9;
+}
+
+/* Textarea Special Case */
+.contact-form textarea {
+  border-radius: 16px;
+  resize: none;
+}
+
+/* Submit Button */
+.contact-form button {
+  background-color: #29c1e2;
+  color: #000;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 999px;
+  width: 100%;
+  transition: background-color 0.3s ease;
+}
+
+.contact-form button:hover {
+  background-color: #1cafcf;
+  color: #fff;
+}

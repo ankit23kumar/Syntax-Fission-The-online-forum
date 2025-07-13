@@ -11,17 +11,18 @@ const features = [
 
 const FeatureSection = () => {
   return (
-    <section className="py-5">
+    <section className="py-5 bg-white">
       <div className="container text-center">
-        <h2 className="text-primary fw-bold mb-4">Powerful Features</h2>
-        <p className="mb-5">Everything you need for the perfect forum experience.</p>
-        <div className="row g-4">
+        <h2 className="text-info fw-bold mb-4">Powerful Features</h2>
+        <p className="text-muted mb-5">Everything you need for the perfect forum experience.</p>
+
+        <div className="row g-4 justify-content-center">
           {features.map((feat, index) => (
-            <div key={index} className="col-md-4">
-              <div className="border rounded p-4 shadow-sm bg-white">
+            <div key={index} className="col-sm-10 col-md-6 col-lg-4">
+              <div className="p-4 border rounded shadow-sm h-100">
                 <div className="fs-1 text-warning mb-3">{feat.icon}</div>
                 <h5 className="fw-semibold">{feat.title}</h5>
-                <p>{feat.desc}</p>
+                <p className="text-secondary">{feat.desc}</p>
               </div>
             </div>
           ))}

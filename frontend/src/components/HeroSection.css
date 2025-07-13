@@ -1,0 +1,88 @@
+.hero-section {
+  background: linear-gradient(300deg, #29c1e2 0%, #0f869c 74%, #1ca3bf 100%);
+  padding: 4rem 0;
+  color: #ffffff;
+}
+
+.hero-title {
+  font-size: 2.75rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #ffffff;
+}
+
+.hero-subtitle {
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: #d9faff;
+  margin-bottom: 1.25rem;
+}
+
+.hero-description {
+  font-size: 1.125rem;
+  color: #f0f0f0;
+}
+
+.hero-image {
+  max-width: 100%;
+  border-radius: 1rem;
+  box-shadow: 0 0 20px rgba(28, 163, 191, 0.25);
+}
+
+
+/* Shared Button Base Style */
+.btn {
+  border: none;
+  font-family: var(--button-font-family, 'Poppins', sans-serif);
+  font-size: 18px;
+  font-weight: 500;
+  border-radius: 50px;
+  padding: 11px 18px;
+  width: 135px;
+  height: 48px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+/* Hero CTA Buttons */
+.btn-cta-start {
+  background-color: #29c1e2; /* Light blue */
+  color: white;
+  width: 160px;
+  height: 48px;
+  font-size: 16px;
+  font-weight: 500;
+  border: none;
+  border-radius: 50px;
+  padding: 11px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+}
+
+.btn-cta-start:hover {
+  background-color: #1cafcf;
+  box-shadow: 0px 4px 10px rgba(41, 193, 226, 0.05);
+}
+
+.btn-cta-explore {
+  background-color: #ffc857; /* Yellow */
+  color: #1f1f1f;
+  width: 160px;
+  height: 48px;
+  font-size: 16px;
+  font-weight: 500;
+  border: none;
+  border-radius: 50px;
+  padding: 11px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+}
+
+.btn-cta-explore:hover {
+  background-color: #e6b03f;
+  box-shadow: 0px 4px 10px rgba(255, 200, 87, 0.05);
+}

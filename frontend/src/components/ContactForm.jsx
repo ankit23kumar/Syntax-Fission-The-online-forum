@@ -1,23 +1,28 @@
 import React from 'react';
+import './ContactForm.css';
 
 const ContactForm = () => {
   return (
-    <section className="bg-dark text-white py-5">
-      <div className="container d-flex flex-column flex-md-row justify-content-between">
-        <div className="col-md-5 mb-4">
-          <h4>Contact Us</h4>
-          <p>Send us a message and we’ll respond as soon as possible.</p>
-          <p><strong>Email:</strong> contact@syntaxfission.com</p>
-          <p><strong>Follow:</strong> Join our social community</p>
+    <section className="contact-section py-5">
+      <div className="container d-flex flex-column flex-md-row justify-content-between gap-4 align-items-start">
+        
+        {/* Contact Info */}
+        <div className="contact-info col-md-5">
+          <h4 className="fw-bold mb-3">Contact Us</h4>
+          <p>Have questions about Syntax Fission? We’d love to hear from you. Send us a message and we’ll respond as soon as possible.</p>
+          <p><i className="bi bi-envelope-fill text-info me-2"></i><strong>Email Us</strong><br />contact@syntaxfission.com</p>
+          <p><i className="bi bi-people-fill text-info me-2"></i><strong>Follow Us</strong><br />Join our social community</p>
         </div>
-        <form className="col-md-6 bg-primary p-4 rounded shadow">
-          <div className="mb-3 d-flex gap-2">
-            <input type="text" placeholder="First Name" className="form-control" />
-            <input type="text" placeholder="Last Name" className="form-control" />
+
+        {/* Contact Form */}
+        <form className="contact-form col-md-6">
+          <div className="mb-3 d-flex flex-column flex-md-row gap-2">
+            <input type="text" placeholder="Your Full Name" className="form-control" />
+            <input type="text" placeholder="Your Full Name" className="form-control" />
           </div>
-          <input type="email" placeholder="Email Address" className="form-control mb-3" />
-          <textarea rows="3" placeholder="Your Message" className="form-control mb-3"></textarea>
-          <button className="btn btn-dark w-100">📨 Send Message</button>
+          <input type="email" placeholder="Your Full Name" className="form-control mb-3" />
+          <textarea rows="3" placeholder="Your Full Name" className="form-control mb-3"></textarea>
+          <button type="submit" className="btn">📨Send Message</button>
         </form>
       </div>
     </section>
@@ -25,3 +30,4 @@ const ContactForm = () => {
 };
 
 export default ContactForm;
+
