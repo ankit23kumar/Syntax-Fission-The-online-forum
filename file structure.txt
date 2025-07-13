@@ -1,11 +1,39 @@
-syntax-fission-frontend/
+/syntax-fission-frontend/
+├── public/
+│   └── favicon.ico
+│   └── logo.svg
 ├── src/
+│   ├── assets/
+│   │   └── images/
+│   │   └── icons/
 │   ├── components/
+│   │   ├── Navbar.jsx
+│   │   ├── Footer.jsx
+│   │   ├── HeroSection.jsx
+│   │   ├── AboutSection.jsx
+│   │   ├── FeatureSection.jsx
+│   │   ├── ContactForm.jsx
+│   │   └── QuestionCard.jsx
 │   ├── pages/
+│   │   ├── Home.jsx
+│   │   ├── Login.jsx
+│   │   ├── Register.jsx
+│   │   ├── Dashboard.jsx
+│   │   ├── Questions.jsx
+│   │   └── Profile.jsx
 │   ├── routes/
+│   │   └── AppRoutes.jsx
 │   ├── services/
+│   │   └── api.js
 │   ├── contexts/
+│   │   └── AuthContext.jsx
 │   ├── styles/
+│   │   ├── main.css
+│   │   └── theme.scss
 │   ├── App.jsx
 │   ├── main.jsx
 │   └── config.js
+├── .env
+├── index.html
+├── package.json
+└── vite.config.js
