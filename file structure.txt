@@ -1,0 +1,11 @@
+syntax-fission-frontend/
+├── src/
+│   ├── components/
+│   ├── pages/
+│   ├── routes/
+│   ├── services/
+│   ├── contexts/
+│   ├── styles/
+│   ├── App.jsx
+│   ├── main.jsx
+│   └── config.js

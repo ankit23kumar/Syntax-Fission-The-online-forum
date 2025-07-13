@@ -1,0 +1,58 @@
+# ========== PYTHON/DJANGO ==========
+*.py[cod]
+__pycache__/
+env/
+venv/
+env.bak/
+*.sqlite3
+*.log
+db.sqlite3
+
+# Django media and static files
+/media/
+staticfiles/
+static/
+local_settings.py
+
+# Secrets and credentials
+.env
+.env.*
+
+# ========== REACT (VITE) FRONTEND ==========
+node_modules/
+dist/
+.vite/
+*.local
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Build output
+frontend/build/
+frontend/dist/
+
+# ========== OS-SPECIFIC ==========
+.DS_Store
+Thumbs.db
+
+# ========== VSCODE & EDITORS ==========
+.vscode/
+.idea/
+*.swp
+
+# ========== COVERAGE & TESTING ==========
+htmlcov/
+.coverage
+coverage.xml
+*.cover
+*.py,cover
+.cache
+nosetests.xml
+test-results/
+
+# ========== GIT ==========
+*.orig
+
+# ========== LOG FILES ==========
+*.log
+logs/
