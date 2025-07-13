@@ -1,0 +1,74 @@
+/* Navbar.css */
+
+/* Container Styling */
+.navbar {
+  background-color: #ffffff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  padding: 0.5rem 1.5rem;
+  z-index: 10;
+  position: sticky;
+  top: 0;
+}
+
+/* Brand logo styling */
+.navbar-brand {
+  font-weight: 700;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.navbar-brand img {
+  height: 32px;
+}
+
+/* Nav links */
+.navbar-nav .nav-link {
+  color: #2d2d2d;
+  font-weight: 500;
+  margin-right: 1rem;
+  transition: color 0.2s ease-in-out;
+}
+
+.navbar-nav .nav-link:hover {
+  color: #00bcd4;
+}
+
+/* Login and Register buttons */
+.navbar-btn {
+  margin-left: 1rem;
+  font-weight: 600;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  transition: background-color 0.3s ease;
+  border: none;
+}
+
+.btn-login {
+  background-color: #e8f6ff;
+  color: #0099cc;
+}
+
+.btn-login:hover {
+  background-color: #d4efff;
+}
+
+.btn-register {
+  background-color: #ffc107;
+  color: #ffffff;
+}
+
+.btn-register:hover {
+  background-color: #e6ac00;
+}
+
+/* Responsive nav toggle */
+.navbar-toggler {
+  border: none;
+  outline: none;
+}
+
+.navbar-toggler:focus {
+  box-shadow: none;
+}
