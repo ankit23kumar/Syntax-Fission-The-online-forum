@@ -1,0 +1,20 @@
+/* src/styles/AskQuestion.css */
+
+.ask-question-page {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.question-form .form-control {
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.question-form textarea {
+  resize: vertical;
+  border-radius: 6px;
+}
+
+.question-form .btn {
+  min-width: 140px;
+}

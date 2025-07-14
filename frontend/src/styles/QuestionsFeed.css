@@ -1,0 +1,40 @@
+.questions-page {
+  min-height: 100vh;
+  background-color: #f9f9f9;
+}
+
+.sidebar {
+  width: 220px;
+  background-color: #fff;
+  border-right: 1px solid #ddd;
+}
+
+.sidebar .logo {
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+
+.sidebar .nav-item {
+  margin-bottom: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding-left: 5px;
+}
+
+.sidebar .nav-item:hover {
+  color: #29c1e2;
+}
+
+.topics .badge {
+  width: 100%;
+  text-align: left;
+}
+
+.question-card {
+  transition: all 0.2s ease-in-out;
+}
+
+.question-card:hover {
+  transform: scale(1.01);
+  border-color: #29c1e2;
+}

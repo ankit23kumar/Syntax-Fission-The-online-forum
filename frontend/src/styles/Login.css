@@ -1,0 +1,28 @@
+.login-page {
+  min-height: 100vh;
+}
+
+.login-left {
+  background: radial-gradient(ellipse at center, #0c0c0c 0%, #111111 100%);
+  flex: 1;
+  text-align: center;
+}
+
+.login-right {
+  flex: 1;
+  min-height: 100vh;
+  box-shadow: -2px 0 6px rgba(0, 0, 0, 0.05);
+}
+
+input::placeholder {
+  color: #aaa;
+}
+
+.btn-info {
+  background-color: #29c1e2;
+  border: none;
+}
+
+.btn-info:hover {
+  background-color: #1cafcf;
+}

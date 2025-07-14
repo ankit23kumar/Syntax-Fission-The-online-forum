@@ -1,0 +1,15 @@
+/* src/styles/QuestionView.css */
+
+.question-view-page {
+  min-height: 100vh;
+  background-color: #f1f3f5;
+}
+
+.answers-section .bg-light {
+  border-left: 4px solid #29c1e2;
+}
+
+.badge {
+  font-size: 0.875rem;
+  padding: 0.5em 0.75em;
+}

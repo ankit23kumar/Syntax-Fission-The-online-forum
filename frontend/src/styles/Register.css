@@ -1,0 +1,77 @@
+.register-page {
+  min-height: 100vh;
+}
+
+.register-left {
+  background: radial-gradient(ellipse at center, #0c0c0c 0%, #111111 100%);
+  flex: 1;
+  text-align: center;
+}
+
+.register-right {
+  flex: 1;
+  min-height: 100vh;
+  box-shadow: -2px 0 6px rgba(0, 0, 0, 0.05);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #aaa;
+}
+
+.btn-info {
+  background-color: #29c1e2;
+  border: none;
+}
+
+.btn-info:hover {
+  background-color: #1cafcf;
+}
+
+.btn-warning {
+  background-color: #ffc857;
+  border: none;
+}
+
+.btn-warning:hover {
+  background-color: #e6b03f;
+}
+
+/* Avatar & Upload */
+.avatar-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid #ccc;
+  padding: 1rem;
+  border-radius: 4px;
+}
+
+.avatar-icon {
+  font-size: 70px;
+  color: #000;
+}
+
+.avatar-img {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #29c1e2;
+}
+
+.edit-icon-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 500;
+  color: #000;
+  font-size: 0.95rem;
+}
+
+.bio-box {
+  height: 130px;
+  border-radius: 6px;
+  border: 1px solid #333;
+  resize: none;
+}
