@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import "../styles/Register.css";
 import registerIllustration from "../assets/mention_rafiki.svg"; // Reuse or update the path
 import { FaUserCircle, FaPen } from "react-icons/fa";
+// import {registerUser, loginWithGoogle } from "../services/authService"; 
+import axios from "axios";
 
 const RegisterStep2 = () => {
   const navigate = useNavigate();
@@ -16,20 +18,52 @@ const RegisterStep2 = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Submit image + bio logic here
-    navigate("/dashboard"); // Redirect after save
+    const formData = new FormData();
+    const userTemp = JSON.parse(localStorage.getItem("userTempData"));
+
+    formData.append("name", userTemp.name);
+    formData.append("email", userTemp.email);
+    formData.append("password", userTemp.password);
+    formData.append("is_admin", userTemp.isAdmin);
+    formData.append("bio", bio);
+    formData.append("profile_picture", document.getElementById("profilePic").files[0]);
+
+
+    try {
+      const res = await axios.post(
+        "http://127.0.0.1:8000/api/users/create/",
+        formData
+      );
+      localStorage.removeItem("userTempData");
+      alert("Registered successfully");
+      navigate("/dashboard");
+    } catch (err) {
+      console.error(err);
+      alert("Registration failed");
+    }
+  };
+
+  const handleSkip = () => {
+    localStorage.removeItem("userTempData");
+    navigate("/dashboard");
   };
 
   return (
     <div className="container-fluid register-page d-flex flex-column flex-md-row p-0">
       {/* Left Section */}
       <div className="register-left d-flex flex-column justify-content-center align-items-center text-white px-4 py-5">
-        <img src={registerIllustration} alt="Register Visual" className="img-fluid mb-4" style={{ maxHeight: 300 }} />
+        <img
+          src={registerIllustration}
+          alt="Register Visual"
+          className="img-fluid mb-4"
+          style={{ maxHeight: 300 }}
+        />
         <h2 className="fw-bold text-center">Sign up for join with us</h2>
         <p className="text-center mt-2">
-          Think, ask, and learn from <span className="text-warning">Syntax Fission</span>
+          Think, ask, and learn from{" "}
+          <span className="text-warning">Syntax Fission</span>
         </p>
       </div>
 
@@ -73,13 +107,16 @@ const RegisterStep2 = () => {
             </div>
 
             {/* Buttons */}
-            <button type="submit" className="btn btn-info text-white btn-lg w-100 mb-3">
+            <button
+              type="submit"
+              className="btn btn-info text-white btn-lg w-100 mb-3"
+            >
               Save
             </button>
             <button
               type="button"
               className="btn btn-warning text-dark btn-lg w-100"
-              onClick={() => navigate("/dashboard")}
+              onClick={handleSkip}
             >
               Skip
             </button>

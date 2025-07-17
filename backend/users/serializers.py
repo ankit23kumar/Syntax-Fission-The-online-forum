@@ -29,13 +29,7 @@ class LoginSerializer(serializers.Serializer):
             data['user'] = user
             return data
         raise serializers.ValidationError("Invalid credentials")
-
-# class LoginSerializer(serializers.Serializer):
-#     email = serializers.EmailField()
-#     password = serializers.CharField(write_only=True)
-
-#     def validate(self, data):
-#         user = authenticate(email=data['email'], password=data['password'])
-#         if user and user.is_active:
-#             return user
-#         raise serializers.ValidationError("Invalid credentials")
+    
+    
+class GoogleAuthSerializer(serializers.Serializer):
+    id_token = serializers.CharField()

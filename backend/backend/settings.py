@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+from corsheaders.defaults import default_headers
 from dotenv import load_dotenv
 import os
 
@@ -53,6 +54,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 AUTHENTICATION_BACKENDS = [
     'users.authentication.EmailBackend',
+    'django.contrib.auth.backends.ModelBackend',
 ]
 
 # Application definition
@@ -163,5 +165,21 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# CORS_ALLOW_ALL_ORIGINS = True
-# CORS_ALLOWS_CREDENTIALS = True
+# 👇 This is preferred for development:
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  # Vite dev server
+]
+
+# If you need to send cookies/auth headers
+CORS_ALLOW_CREDENTIALS = True
+
+# Allow all HTTP headers from frontend (optional)
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    'access-control-allow-origin',
+    'authorization',
+    'x-csrftoken',
+]
+
+# Allow frontend to send Authorization headers
+CORS_EXPOSE_HEADERS = ['Authorization']
+

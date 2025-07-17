@@ -7,10 +7,11 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from django.conf import settings
+from django.contrib.auth.hashers import make_password
+from django.utils.crypto import get_random_string
 
 from .models import User
-from .serializers import UserSerializer, LoginSerializer
-
+from .serializers import UserSerializer, LoginSerializer, GoogleAuthSerializer
 
 class UserCreateView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -48,18 +49,18 @@ class GoogleAuthView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        token = request.data.get("id_token")
-        if not token:
-            return Response({"error": "Missing ID token"}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = GoogleAuthSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        token = serializer.validated_data.get("id_token")
 
         try:
             idinfo = id_token.verify_oauth2_token(
                 token,
                 requests.Request(),
-                settings.GOOGLE_CLIENT_ID  # ✅ From .env via settings.py
+                settings.GOOGLE_CLIENT_ID
             )
 
-            email = idinfo["email"]
+            email = idinfo.get("email")
             name = idinfo.get("name", "")
             picture = idinfo.get("picture", "")
 
@@ -67,12 +68,13 @@ class GoogleAuthView(APIView):
                 email=email,
                 defaults={
                     "name": name,
-                    "profile_picture": picture,
-                    "password": User.objects.make_random_password()
+                    "profile_picture": picture or None,
+                    "password": make_password(get_random_string(12))
                 }
             )
 
             refresh = RefreshToken.for_user(user)
+
             return Response({
                 "refresh": str(refresh),
                 "access": str(refresh.access_token),
@@ -84,3 +86,5 @@ class GoogleAuthView(APIView):
 
         except ValueError:
             return Response({"error": "Invalid Google token"}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
