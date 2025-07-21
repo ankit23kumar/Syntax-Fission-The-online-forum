@@ -33,3 +33,20 @@ class LoginSerializer(serializers.Serializer):
     
 class GoogleAuthSerializer(serializers.Serializer):
     id_token = serializers.CharField()
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['email','name', 'bio', 'profile_picture']  
+        read_only_fields = ['email'] 
+
+
+class PasswordUpdateSerializer(serializers.Serializer):
+    password = serializers.CharField(write_only=True)
+    confirm_password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        if data['password'] != data['confirm_password']:
+            raise serializers.ValidationError("Passwords do not match.")
+        return data

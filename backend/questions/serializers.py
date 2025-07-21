@@ -15,3 +15,8 @@ class QuestionTagSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionTag
         fields = '__all__'
+        
+class QuestionTitleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Question
+        fields = ['id', 'title', 'created_at']

@@ -5,8 +5,10 @@ import loginIllustration from "../assets/login_cuate.svg";
 import { loginUser, loginWithGoogle } from "../services/authService";
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
   // Handle normal login
@@ -14,44 +16,51 @@ const Login = () => {
     e.preventDefault();
     try {
       const res = await loginUser(email, password);
-      localStorage.setItem('access', res.data.access);
-      localStorage.setItem('refresh', res.data.refresh);
-      localStorage.setItem('user', JSON.stringify(res.data));
-      alert('Login successful');
-      navigate('/dashboard');
+      localStorage.setItem("access", res.data.access);
+      localStorage.setItem("refresh", res.data.refresh);
+      localStorage.setItem("user", JSON.stringify(res.data));
+      setSuccessMessage("Login successful!");
+      setTimeout(() => {
+        setSuccessMessage("");
+        navigate("/dashboard");
+      }, 2000); // Redirect after brief success message
     } catch (err) {
       console.error(err);
-      alert('Login failed');
+      setErrorMessage("Login failed. Please check your credentials.");
+      setTimeout(() => setErrorMessage(""), 3000);
     }
   };
 
-  // Handle Google login (button click)
+  // Handle Google login
   const handleGoogleLogin = (response) => {
     const id_token = response.credential;
     if (!id_token) {
-      alert("Google login failed");
+      setErrorMessage("Google login failed");
+      setTimeout(() => setErrorMessage(""), 3000);
       return;
     }
 
     loginWithGoogle(id_token)
       .then((res) => {
-        localStorage.setItem('access', res.data.access);
-        localStorage.setItem('refresh', res.data.refresh);
-        localStorage.setItem('user', JSON.stringify(res.data));
-        alert('Google login successful');
-        navigate('/dashboard');
+        localStorage.setItem("access", res.data.access);
+        localStorage.setItem("refresh", res.data.refresh);
+        localStorage.setItem("user", JSON.stringify(res.data));
+        setSuccessMessage("Google login successful!");
+        setTimeout(() => {
+          setSuccessMessage("");
+          navigate("/dashboard");
+        }, 2000);
       })
       .catch((err) => {
         console.error(err);
-        alert('Google login failed');
+        setErrorMessage("Google login failed.");
+        setTimeout(() => setErrorMessage(""), 3000);
       });
   };
 
   // Google Identity initialization
   useEffect(() => {
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-
-    /* global google */
     window.google?.accounts.id.initialize({
       client_id: clientId,
       callback: handleGoogleLogin,
@@ -66,15 +75,33 @@ const Login = () => {
       }
     );
 
-    // Optional: One Tap prompt
     window.google?.accounts.id.prompt();
   }, []);
 
   return (
     <div className="container-fluid login-page d-flex flex-column flex-md-row p-0">
+      {/* Alert Section */}
+      <div className="position-absolute top-0 start-50 translate-middle-x mt-3" style={{ zIndex: 9999 }}>
+        {successMessage && (
+          <div className="alert alert-success alert-dismissible fade show" role="alert">
+            {successMessage}
+          </div>
+        )}
+        {errorMessage && (
+          <div className="alert alert-danger alert-dismissible fade show" role="alert">
+            {errorMessage}
+          </div>
+        )}
+      </div>
+
       {/* Left Illustration */}
       <div className="login-left d-flex flex-column justify-content-center align-items-center text-white px-4 py-5">
-        <img src={loginIllustration} alt="Login Illustration" className="img-fluid mb-4" style={{ maxHeight: 300 }} />
+        <img
+          src={loginIllustration}
+          alt="Login Illustration"
+          className="img-fluid mb-4"
+          style={{ maxHeight: 300 }}
+        />
         <h2 className="fw-bold text-center">Login to join us</h2>
         <p className="text-center mt-2">
           Think, ask, and learn with <span className="text-warning">Syntax Fission</span>
@@ -108,20 +135,29 @@ const Login = () => {
                 required
               />
             </div>
-            <button type="submit" className="btn btn-info text-white btn-lg w-100 mb-3">
+            <button
+              type="submit"
+              className="btn btn-info text-white btn-lg w-100 mb-3"
+            >
               Login
             </button>
           </form>
 
-          <div className="text-center my-3 text-muted">──────── or continue ────────</div>
+          <div className="text-center my-3 text-muted">
+            ──────── or continue ────────
+          </div>
 
-          {/* Google button placeholder */}
-          {/* <div id="google-login-button" className="w-100 mb-3"></div> */}
-          <div className="d-flex justify-content-center" id="google-login-button"></div>
-
+          {/* Google login button */}
+          <div
+            className="d-flex justify-content-center"
+            id="google-login-button"
+          ></div>
 
           <p className="mt-4 text-center text-muted">
-            Don’t have an account? <Link to="/register" className="text-primary">Register here</Link>
+            Don’t have an account?{" "}
+            <Link to="/register" className="text-primary">
+              Register here
+            </Link>
           </p>
         </div>
       </div>
