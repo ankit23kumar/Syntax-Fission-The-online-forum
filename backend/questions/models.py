@@ -12,9 +12,13 @@ class Question(models.Model):
     category = models.CharField(max_length=100, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    @property
+    def get_tags(self):
+        return Tag.objects.filter(questiontag__question=self)
+    
 class ViewCount(models.Model):
     view_count_id = models.BigAutoField(primary_key=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     viewed_at = models.DateTimeField(auto_now_add=True)
 

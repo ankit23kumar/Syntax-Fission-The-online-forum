@@ -5,6 +5,10 @@
   background-color: #f8f9fa;
 }
 
+.question-form {
+  max-width: 1080px;
+}
+
 .question-form .form-control {
   border-radius: 6px;
   font-size: 1rem;

@@ -13,3 +13,9 @@
   font-size: 0.875rem;
   padding: 0.5em 0.75em;
 }
+
+.vote-icon {
+  cursor: pointer;
+  color: #6c757d;
+}
+

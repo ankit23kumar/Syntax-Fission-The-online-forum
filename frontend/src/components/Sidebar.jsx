@@ -27,7 +27,7 @@ const Sidebar = () => {
           <NavLink to="/dashboard" className="nav-item">📊 Dashboard</NavLink>
         </li>
         <li>
-          <NavLink to="/questions" className="nav-item">❓ Questions & Answers</NavLink>
+          <NavLink to="/new-questions" className="nav-item">❓ Questions & Answers</NavLink>
         </li>
         <li>
           <NavLink to="/features" className="nav-item">✨ Features</NavLink>

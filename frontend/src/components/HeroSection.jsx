@@ -1,8 +1,25 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext"; //import your custom hook
 import "./HeroSection.css";
-import heroImg from "../assets/herosection.png"; // replace with your actual image
+import heroImg from "../assets/herosection.png";
 
 const HeroSection = () => {
+  const navigate = useNavigate();
+  const { accessToken } = useAuth();
+
+  const handleGetStarted = () => {
+    if (accessToken) {
+      navigate("/ask-question");
+    } else {
+      navigate("/login");
+    }
+  };
+
+  const handleExplore = () => {
+    navigate("/new-questions");
+  };
+
   return (
     <section className="hero-section text-dark d-flex align-items-center">
       <div className="container">
@@ -20,8 +37,12 @@ const HeroSection = () => {
               discussions.
             </p>
             <div className="mt-4 d-flex flex-wrap justify-content-center justify-content-md-start gap-3">
-              <button className="btn-cta-start">Get Started</button>
-              <button className="btn-cta-explore">Explore Q & A</button>
+              <button className="btn-cta-start" onClick={handleGetStarted}>
+                Get Started
+              </button>
+              <button className="btn-cta-explore" onClick={handleExplore}>
+                Explore Q & A
+              </button>
             </div>
           </div>
 

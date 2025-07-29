@@ -21,7 +21,7 @@ const AppRoutes = () => {
       <Route path="/dashboard/*" element={<Dashboard />} />
       <Route path="/new-questions" element={<NewQuestions />} />
       <Route path="/ask-question" element={<AskQuestion/>} />
-      <Route path="/question-view" element={<QuestionView/>} />
+      <Route path="/questions/:questionId" element={<QuestionView/>} />
     </Routes>
   )
 }

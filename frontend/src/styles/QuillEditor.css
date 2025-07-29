@@ -1,0 +1,16 @@
+/* styles/QuillEditor.css */
+.quill-editor-wrapper {
+  background-color: #fff;
+  border-radius: 6px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+}
+
+.quill-editor-wrapper .ql-toolbar {
+  border-radius: 4px 4px 0 0;
+}
+
+.quill-editor-wrapper .ql-container {
+  border-radius: 0 0 4px 4px;
+  min-height: 200px;
+}
