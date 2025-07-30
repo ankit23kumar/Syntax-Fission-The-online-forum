@@ -1,0 +1,6 @@
+.list-group-item {
+  cursor: default;
+}
+.list-group-item.fw-bold:hover {
+  background-color: #f1f9ff;
+}

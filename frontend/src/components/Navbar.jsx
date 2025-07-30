@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext"; // ✅ make sure path is correct
+import { useAuth } from "../contexts/AuthContext";
+import NotificationBell from "./NotificationBell";
 import "./Navbar.css";
 import logo from "../assets/logo_sf.png";
 
@@ -10,7 +11,6 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   const toggleNavbar = () => setIsOpen(!isOpen);
-
   const handleLogout = () => {
     logout();
     navigate("/");
@@ -19,7 +19,7 @@ const Navbar = () => {
   return (
     <header className="navbar-gradient border-bottom">
       <div className="container d-flex align-items-center justify-content-between py-3 px-2">
-        {/* Logo + Brand */}
+        {/* Logo */}
         <div className="navbar-left d-flex align-items-center gap-3">
           <img src={logo} alt="Syntax Fission Logo" className="navbar-logo" />
           <h1 className="navbar-title mb-0">
@@ -28,8 +28,8 @@ const Navbar = () => {
           </h1>
         </div>
 
-        {/* Hamburger Icon */}
-        <button className="navbar-toggler d-lg-none" type="button" onClick={toggleNavbar}>
+        {/* Hamburger for Mobile */}
+        <button className="navbar-toggler d-lg-none" onClick={toggleNavbar}>
           <span className="navbar-toggler-icon">&#9776;</span>
         </button>
 
@@ -41,8 +41,9 @@ const Navbar = () => {
           <Link to="/contact" className="nav-link-custom">Contact Us</Link>
         </nav>
 
-        {/* Right section based on auth */}
+        {/* Right (Desktop) */}
         <div className="d-none d-lg-flex align-items-center gap-3">
+          {user && <NotificationBell />}
           {!user ? (
             <>
               <Link to="/login" className="btn-login">Login</Link>
@@ -50,14 +51,10 @@ const Navbar = () => {
             </>
           ) : (
             <div className="dropdown">
-              <button
-                className="dropdown-toggle d-flex align-items-center gap-2"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
+              <button className="dropdown-toggle d-flex align-items-center gap-2" data-bs-toggle="dropdown">
                 <img
                   src={user.profile_picture || "https://cdn-icons-png.flaticon.com/512/847/847969.png"}
-                  alt="User Avatar"
+                  alt="Avatar"
                   width={32}
                   height={32}
                   className="rounded-circle"
@@ -69,20 +66,25 @@ const Navbar = () => {
                 <li><Link className="dropdown-item" to="/profile">Profile</Link></li>
                 <li><Link className="dropdown-item" to="/account">Account</Link></li>
                 <li><hr className="dropdown-divider" /></li>
-                <li><button className="dropdown-item text-danger" onClick={handleLogout}>Logout</button></li>
+                <li>
+                  <button className="dropdown-item text-danger" onClick={handleLogout}>
+                    Logout
+                  </button>
+                </li>
               </ul>
             </div>
           )}
         </div>
       </div>
 
-      {/* Mobile Dropdown Menu */}
+      {/* Mobile Dropdown */}
       {isOpen && (
         <div className="navbar-collapse d-lg-none text-center">
           <Link to="/about" className="nav-link-custom d-block my-2">About</Link>
           <Link to="/questions" className="nav-link-custom d-block my-2">Questions & Answers</Link>
           <Link to="/features" className="nav-link-custom d-block my-2">Features</Link>
           <Link to="/contact" className="nav-link-custom d-block my-2">Contact Us</Link>
+
           {!user ? (
             <div className="d-flex flex-column gap-2 mt-3">
               <Link to="/login" className="btn-login">Login</Link>
@@ -101,7 +103,9 @@ const Navbar = () => {
               <Link to="/dashboard" className="nav-link-custom my-2">Dashboard</Link>
               <Link to="/profile" className="nav-link-custom my-1">Profile</Link>
               <Link to="/account" className="nav-link-custom my-1">Account</Link>
-              <button onClick={handleLogout} className="btn btn-sm btn-outline-danger mt-2">Logout</button>
+              <button onClick={handleLogout} className="btn btn-sm btn-outline-danger mt-2">
+                Logout
+              </button>
             </div>
           )}
         </div>

@@ -3,6 +3,7 @@ from .models import Question, ViewCount, QuestionTag
 from answers.models import Answer
 from tags.models import Tag
 from users.models import User
+from notifications.utils import create_notification
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:

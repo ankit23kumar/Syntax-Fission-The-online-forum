@@ -5,6 +5,7 @@ from .models import Vote
 from .serializers import VoteSerializer
 from questions.models import Question
 from answers.models import Answer
+from notifications.utils import create_notification
 
 class VoteCreateView(generics.CreateAPIView):
     serializer_class = VoteSerializer
@@ -52,6 +53,13 @@ class VoteCreateView(generics.CreateAPIView):
             vote_type=vote_type
         )
         self._update_target_votes(target, vote_type, remove=False)
+        # ✅ Notify content owner (except self)
+        if target.user != user:
+            create_notification(
+                user=target.user,
+                message=f"{user.name} {vote_type}d your {target_type}."
+            )
+    
         serializer = self.get_serializer(vote)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 

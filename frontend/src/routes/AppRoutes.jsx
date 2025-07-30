@@ -9,6 +9,8 @@ import Dashboard from '../pages/Dashboard'
 import NewQuestions from '../pages/NewQuestions'
 import AskQuestion from '../pages/AskQuestion'
 import QuestionView from '../pages/QuestionView'
+import NotificationsPage from '../pages/NotificationsPage'
+
 
 const AppRoutes = () => {
   return (
@@ -22,6 +24,8 @@ const AppRoutes = () => {
       <Route path="/new-questions" element={<NewQuestions />} />
       <Route path="/ask-question" element={<AskQuestion/>} />
       <Route path="/questions/:questionId" element={<QuestionView/>} />
+      <Route path="/notifications" element={<NotificationsPage />} />
+
     </Routes>
   )
 }

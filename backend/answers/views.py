@@ -5,6 +5,8 @@ from .serializers import AnswerSerializer
 from questions.models import Question
 from rest_framework.exceptions import NotFound
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
+from rest_framework.exceptions import PermissionDenied
+from notifications.utils import create_notification
 
 class AnswerListCreateView(generics.ListCreateAPIView):
     serializer_class = AnswerSerializer
@@ -22,8 +24,21 @@ class AnswerListCreateView(generics.ListCreateAPIView):
             raise NotFound("Question not found.")
         serializer.save(user=self.request.user, question=question)
 
+        # ✅ Notify the question owner (except self)
+        if question.user != self.request.user:
+            create_notification(
+                user=question.user,
+                message=f"{self.request.user.name} answered your question: '{question.title}'"
+            )
+
 class AnswerDetailView(RetrieveUpdateDestroyAPIView):
     queryset = Answer.objects.all()
     serializer_class = AnswerSerializer
-    lookup_field = 'id'
+    lookup_field = 'answer_id'
     lookup_url_kwarg = 'answer_id'
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def perform_destroy(self, instance):
+        if instance.user != self.request.user:
+            raise PermissionDenied("You do not have permission to delete this answer.")
+        instance.delete()

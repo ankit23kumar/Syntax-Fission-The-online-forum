@@ -12,7 +12,7 @@ const Sidebar = () => {
   // Handle logout
   const handleLogout = () => {
     localStorage.removeItem("token"); // or authService.logout()
-    navigate("/login");
+    navigate("/");
   };
 
   return (

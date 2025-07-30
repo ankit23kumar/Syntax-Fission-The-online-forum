@@ -6,6 +6,7 @@ import EditProfile from "../components/Dashboard/EditProfile";
 import Activity from "../components/Dashboard/Activity";
 import AccountSettings from "../components/Dashboard/AccountSettings";
 import Sidebar from "../components/Sidebar";
+import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import "../styles/UserDashboard.css";
 
@@ -47,6 +48,7 @@ const Dashboard = () => {
 
   return (
     <>
+      <Navbar/>
       <div className="container-fluid p-0 d-flex">
         {/* Sidebar */}
         <Sidebar />

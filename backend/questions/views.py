@@ -35,7 +35,6 @@ class AskQuestionView(generics.CreateAPIView):
             tag, _ = Tag.objects.get_or_create(tag_name=clean_name)
             QuestionTag.objects.create(question=question, tag=tag)
 
-# views.py (continued)
 
 class UpdateQuestionView(generics.UpdateAPIView):
     queryset = Question.objects.all()

@@ -12,7 +12,6 @@ class Question(models.Model):
     category = models.CharField(max_length=100, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    @property
     def get_tags(self):
         return Tag.objects.filter(questiontag__question=self)
     
