@@ -19,3 +19,16 @@
   color: #6c757d;
 }
 
+.vote-icon {
+  cursor: pointer;
+  color: #6c757d;
+}
+
+.vote-icon.text-success {
+  color: #28a745 !important;
+}
+
+.vote-icon.text-danger {
+  color: #dc3545 !important;
+}
+

@@ -25,11 +25,14 @@ class AnswerListCreateView(generics.ListCreateAPIView):
         serializer.save(user=self.request.user, question=question)
 
         # ✅ Notify the question owner (except self)
+        # answers/views.py
+
         if question.user != self.request.user:
             create_notification(
                 user=question.user,
-                message=f"{self.request.user.name} answered your question: '{question.title}'"
+                message=f"{self.request.user.name} answered your question: '{question.title}' (ID: {question.question_id})"
             )
+
 
 class AnswerDetailView(RetrieveUpdateDestroyAPIView):
     queryset = Answer.objects.all()

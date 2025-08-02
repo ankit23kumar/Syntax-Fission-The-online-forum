@@ -6,8 +6,9 @@ import axiosInstance from './api';
 ----------------------------------*/
 
 // Get all questions
-export const getAllQuestions = () => axiosInstance.get('/questions/');
-
+// export const getAllQuestions = () => axiosInstance.get('/questions/');
+export const getAllQuestions = (params = {}) =>
+  axiosInstance.get('/questions/', { params });
 // Get single question details
 export const getQuestionById = (questionId) => axiosInstance.get(`/questions/${questionId}/`);
 

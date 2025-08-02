@@ -1,3 +1,4 @@
+#users/models.py 
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
@@ -24,6 +25,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     password = models.CharField(max_length=255)
     profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)                  #  CharField(max_length=255, blank=True, null=True)
     bio = models.TextField(blank=True, null=True)
+    is_active = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)

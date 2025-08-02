@@ -4,26 +4,33 @@ import Sidebar from "../components/Sidebar";
 import FilterSwitch from "../components/FilterSwitch";
 import { getAllQuestions } from "../services/qaService";
 import "../styles/NewQuestions.css";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 const NewQuestions = () => {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchParams] = useSearchParams();
+  const filter = searchParams.get("filter") || "Newest";
+  const tags = searchParams.get("tags") || "";
 
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const res = await getAllQuestions();
+        setLoading(true);
+        const res = await getAllQuestions({ filter, tags }); // pass filter to service
         setQuestions(res.data);
       } catch (err) {
-        console.error("Error fetching questions:", err.response?.data || err.message);
+        console.error(
+          "Error fetching questions:",
+          err.response?.data || err.message
+        );
       } finally {
         setLoading(false);
       }
     };
 
     fetchQuestions();
-  }, []);
+  }, [filter, tags]);
 
   return (
     <>
@@ -50,31 +57,47 @@ const NewQuestions = () => {
                     <div className="d-flex gap-4 small text-muted">
                       <div>{question.upvotes - question.downvotes} Votes</div>
                       <div>{question.answer_count} Answer</div>
-                      <div>00 Views</div>
+                      <div>00 Views</div> {/* Placeholder for now */}
                     </div>
                   </div>
                   <h5 className="text-primary fw-bold mb-1">
-                    <Link to={`/questions/${question.question_id}`} className="text-decoration-none text-primary">
+                    <Link
+                      to={`/questions/${question.question_id}`}
+                      className="text-decoration-none text-primary"
+                    >
                       {question.title}
                     </Link>
                   </h5>
-                  <p className="mb-2 small text-muted">{question.content.slice(0, 100)}...</p>
+                  <p className="mb-2 small text-muted">
+                    {question.content.slice(0, 100)}...
+                  </p>
                   <div className="d-flex align-items-center justify-content-between">
                     <div className="d-flex gap-2 flex-wrap">
                       {question.tags.map((tag, idx) => (
-                        <span key={idx} className="badge bg-light text-dark border">{tag.tag_name}</span>
+                        <span
+                          key={idx}
+                          className="badge bg-light text-dark border"
+                        >
+                          {tag.tag_name}
+                        </span>
                       ))}
                     </div>
                     <div className="d-flex align-items-center gap-2 text-muted">
                       <img
-                        src={question.user.profile_picture || "https://cdn-icons-png.flaticon.com/512/847/847969.png"}
+                        src={
+                          question.user.profile_picture ||
+                          "https://cdn-icons-png.flaticon.com/512/847/847969.png"
+                        }
                         alt="user"
                         width={25}
                         height={25}
                         className="rounded-circle"
                       />
                       <span>{question.user.name}</span>
-                      <small>asked {new Date(question.created_at).toLocaleDateString()}</small>
+                      <small>
+                        asked{" "}
+                        {new Date(question.created_at).toLocaleDateString()}
+                      </small>
                     </div>
                   </div>
                 </div>

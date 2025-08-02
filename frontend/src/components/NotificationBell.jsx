@@ -1,7 +1,12 @@
+// src/components/NotificationBell.jsx
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { TbNotification } from "react-icons/tb";
-import { fetchNotifications } from "../services/notificationService";
+import { IoNotificationsOutline } from "react-icons/io5";
+import {
+  fetchNotifications,
+  markAllNotificationsAsRead,
+} from "../services/notificationService";
+import "../styles/Notifications.css";
 
 const NotificationBell = () => {
   const [notifications, setNotifications] = useState([]);
@@ -24,7 +29,18 @@ const NotificationBell = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
+  const toggleDropdown = async () => {
+    const newState = !dropdownOpen;
+    setDropdownOpen(newState);
+    if (newState) {
+      try {
+        await markAllNotificationsAsRead();
+        loadNotifications(); // sync count to 0
+      } catch (err) {
+        console.error("Error marking notifications read", err);
+      }
+    }
+  };
 
   const parseMessageToLink = (message) => {
     const qMatch = message.match(/question.*ID[:#]?\s?(\d+)/i);
@@ -36,15 +52,10 @@ const NotificationBell = () => {
 
   return (
     <div className="dropdown position-relative">
-      <button
-        className="btn border-0 bg-transparent position-relative"
-        onClick={toggleDropdown}
-      >
-        <TbNotification size={32} />
+      <button className="notification-btn" onClick={toggleDropdown}>
+        <IoNotificationsOutline size={26} />
         {unreadCount > 0 && (
-          <span className="badge bg-danger position-absolute top-0 start-100 translate-middle">
-            {unreadCount}
-          </span>
+          <span className="notification-badge">{unreadCount}</span>
         )}
       </button>
 
@@ -60,23 +71,23 @@ const NotificationBell = () => {
           }}
         >
           <div className="fw-bold px-2 mb-2">Notifications</div>
-
           {notifications.length === 0 ? (
             <p className="px-2 text-muted">No notifications.</p>
           ) : (
-            notifications.slice(0, 5).map((note) => (
-              <Link
-                key={note.notification_id}
-                to={parseMessageToLink(note.message)}
-                className={`dropdown-item small ${
-                  note.is_read ? "text-muted" : "fw-bold"
-                }`}
-              >
-                {note.message}
-              </Link>
-            ))
+            <>
+              {notifications.slice(0, 5).map((note) => (
+                <Link
+                  key={note.notification_id}
+                  to={parseMessageToLink(note.message)}
+                  className={`dropdown-item small ${
+                    note.is_read ? "text-muted" : "fw-bold"
+                  }`}
+                >
+                  {note.message}
+                </Link>
+              ))}
+            </>
           )}
-
           <hr className="my-2" />
           <Link
             to="/notifications"

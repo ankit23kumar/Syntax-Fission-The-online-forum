@@ -1,0 +1,13 @@
+{% comment %} templates/emails/verify_email.html {% endcomment %}
+<!DOCTYPE html>
+<html>
+  <body>
+    <p>Hello {{ user.name }},</p>
+
+    <p>Please click the link below to verify your email address and activate your account:</p>
+
+    <p>🔗 <a href="{{ verify_url }}">{{ verify_url }}</a></p>
+
+    <p>Thanks,<br/>Syntax Fission Team</p>
+  </body>
+</html>

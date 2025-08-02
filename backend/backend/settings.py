@@ -94,7 +94,7 @@ ROOT_URLCONF = 'backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'users' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -183,3 +183,11 @@ CORS_ALLOW_HEADERS = list(default_headers) + [
 # Allow frontend to send Authorization headers
 CORS_EXPOSE_HEADERS = ['Authorization']
 
+# Email Backend Configuration (for development)
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # Or use your provider (e.g., SendGrid, Mailgun)
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")  # Set in .env
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")  # Set in .env
+DEFAULT_FROM_EMAIL = 'Syntax Fission <noreply@syntaxfission.com>'  # customize if needed

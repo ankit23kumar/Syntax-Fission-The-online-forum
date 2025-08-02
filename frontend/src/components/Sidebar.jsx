@@ -1,24 +1,52 @@
 import React from "react";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import {
+  NavLink,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import "../styles/Sidebar.css";
 
 const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  // Check if we're on the dashboard route
   const isDashboard = location.pathname.startsWith("/dashboard");
+  const currentTag = searchParams.get("tags")?.toLowerCase() || "";
 
-  // Handle logout
+  const tagList = [
+    "C", "C++", "Python", "Java", "HTML",
+    "CSS", "JavaScript", "Others"
+  ];
+
   const handleLogout = () => {
-    localStorage.removeItem("token"); // or authService.logout()
+    localStorage.removeItem("token");
     navigate("/");
+  };
+
+  const handleTagFilter = (tag) => {
+    const updatedParams = new URLSearchParams(location.search);
+    const normalizedTag = tag.toLowerCase();
+
+    if (currentTag === normalizedTag) {
+      // If already active → remove tag filter
+      updatedParams.delete("tags");
+    } else {
+      // Otherwise → set the selected tag
+      updatedParams.set("tags", normalizedTag);
+    }
+
+    navigate({
+      pathname: "/new-questions",
+      search: updatedParams.toString(),
+    });
   };
 
   return (
     <aside className="sidebar p-3">
       <h4 className="logo text-info">Syntax Fission</h4>
-      
+
       <ul className="nav flex-column mt-4">
         <li>
           <NavLink to="/" className="nav-item">🏠 Home</NavLink>
@@ -37,20 +65,35 @@ const Sidebar = () => {
         </li>
       </ul>
 
-      {/* Only show language filter when NOT on dashboard */}
       {!isDashboard && (
         <div className="topics mt-4">
           <h6 className="fw-bold mb-3">Topics & Language</h6>
-          {["C", "C++", "Python", "Java", "HTML", "CSS", "JavaScript", "Others"].map((lang) => (
-            <div key={lang} className="badge bg-light text-dark d-block mb-4">{lang}</div>
-          ))}
+          {tagList.map((lang) => {
+            const normalizedLang = lang.toLowerCase();
+            const isActive = currentTag === normalizedLang;
+
+            return (
+              <div
+                key={lang}
+                role="button"
+                onClick={() => handleTagFilter(lang)}
+                className={`badge bg-light text-dark d-block mb-2 sidebar-tag ${
+                  isActive ? "border border-info fw-semibold" : ""
+                }`}
+              >
+                {lang}
+              </div>
+            );
+          })}
         </div>
       )}
 
-      {/* Logout button */}
       {isDashboard && (
         <div className="mt-5">
-          <button onClick={handleLogout} className="btn btn-outline-danger w-100">
+          <button
+            className="btn btn-outline-danger w-100"
+            onClick={handleLogout}
+          >
             🚪 Logout
           </button>
         </div>

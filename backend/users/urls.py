@@ -1,11 +1,4 @@
-
-# from rest_framework.routers import DefaultRouter
-# from .views import UserViewSet
-
-# router = DefaultRouter()
-# router.register(r'', UserViewSet, basename='user')
-
-# urlpatterns = router.urls
+#users/urls.py
 
 from django.urls import path
 from .views import (UserCreateView, UserDetailView, UserLoginView, GoogleAuthView,UserProfileView,
@@ -13,7 +6,8 @@ from .views import (UserCreateView, UserDetailView, UserLoginView, GoogleAuthVie
                     UserActivityView,
                     UserAccountView,
                     DeleteUserAccountView,
-                    UpdatePasswordView
+                    UpdatePasswordView,
+                    verify_email
                 )
 from rest_framework_simplejwt.views import TokenRefreshView
 
@@ -29,4 +23,5 @@ urlpatterns = [
     path('account/', UserAccountView.as_view(), name='user-account'),
     path('delete/', DeleteUserAccountView.as_view(), name='delete-user'),
     path('update-password/', UpdatePasswordView.as_view(), name='update-password'),
+    path('verify-email/<uidb64>/<token>/', verify_email, name='verify-email'),
 ]

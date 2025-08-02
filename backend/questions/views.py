@@ -7,12 +7,66 @@ from .serializers import (
     QuestionSerializer, QuestionDetailSerializer,
     AnswerSerializer, ViewCountSerializer
 )
+from django.db.models import Q, Count, Max
+from django.utils import timezone
+from datetime import timedelta
+
+# class QuestionListView(generics.ListAPIView):
+#     queryset = Question.objects.all().order_by('-created_at')
+#     serializer_class = QuestionSerializer
+#     permission_classes = [permissions.AllowAny]
 
 class QuestionListView(generics.ListAPIView):
-    queryset = Question.objects.all().order_by('-created_at')
     serializer_class = QuestionSerializer
     permission_classes = [permissions.AllowAny]
 
+    def get_queryset(self):
+        queryset = Question.objects.all().distinct()
+        request = self.request
+        params = request.query_params
+
+        # FILTER: search in title/content
+        search = params.get('search')
+        if search:
+            queryset = queryset.filter(
+                Q(title__icontains=search) | Q(content__icontains=search)
+            )
+
+        # FILTER: tags (comma-separated)
+        tags = params.get('tags')
+        if tags:
+            tag_list = [tag.strip().lower() for tag in tags.split(",") if tag.strip()]
+            queryset = queryset.filter(
+                questiontag__tag__tag_name__in=tag_list
+            ).distinct()
+
+        # FILTER: filter type (Newest, Active, Unanswered, Week, Month)
+        filter_type = params.get('filter', 'Newest')
+
+        if filter_type == "Active":
+            queryset = queryset.annotate(
+                last_answer_time=Max("answer__created_at")
+            ).order_by("-last_answer_time", "-created_at")
+
+        elif filter_type == "Unanswered":
+            queryset = queryset.annotate(
+                answer_count=Count("answer")
+            ).filter(answer_count=0).order_by("-created_at")
+
+        elif filter_type == "Week":
+            one_week_ago = timezone.now() - timedelta(days=7)
+            queryset = queryset.filter(created_at__gte=one_week_ago).order_by("-created_at")
+
+        elif filter_type == "Month":
+            one_month_ago = timezone.now() - timedelta(days=30)
+            queryset = queryset.filter(created_at__gte=one_month_ago).order_by("-created_at")
+
+        else:  # Default is Newest
+            queryset = queryset.order_by("-created_at")
+
+        return queryset
+
+        
 class QuestionDetailView(generics.RetrieveAPIView):
     queryset = Question.objects.all()
     serializer_class = QuestionDetailSerializer

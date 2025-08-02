@@ -1,26 +1,43 @@
 // src/pages/NotificationsPage.jsx
 import React, { useEffect, useState } from "react";
-import { fetchNotifications, markAllNotificationsAsRead } from "../services/notificationService";
+import {
+  fetchNotifications,
+  markAllNotificationsAsRead,
+} from "../services/notificationService";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import Footer from "../components/Footer";
-import "../styles/Notifications.css"; // optional
+import "../styles/Notifications.css";
 
 const NotificationsPage = () => {
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState(null); // ← fix: initially null
   const [loading, setLoading] = useState(true);
 
-  const loadNotifications = async () => {
-    try {
-      const data = await fetchNotifications();
-      setNotifications(data);
-    } catch (err) {
-      console.error("Failed to fetch notifications", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadNotifications = async () => {
+      try {
+        const data = await fetchNotifications();
+        if (isMounted) {
+          setNotifications(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch notifications", err);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadNotifications();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleMarkAllAsRead = async () => {
     try {
@@ -36,25 +53,26 @@ const NotificationsPage = () => {
     const aMatch = msg.match(/answer.*ID[:#]?\s?(\d+)/i);
     if (qMatch) return `/questions/${qMatch[1]}`;
     if (aMatch) return `/questions/${aMatch[1]}`;
-    return "/questions";
+    return "/new-questions";
   };
 
   return (
     <>
       <Navbar />
-
       <div className="d-flex">
         <Sidebar />
-
         <main className="container py-4">
           <div className="d-flex justify-content-between align-items-center mb-4">
             <h4 className="fw-bold mb-0">Notifications</h4>
-            <button className="btn btn-sm btn-outline-info" onClick={handleMarkAllAsRead}>
+            <button
+              className="btn btn-sm btn-outline-info"
+              onClick={handleMarkAllAsRead}
+            >
               Mark All As Read
             </button>
           </div>
 
-          {loading ? (
+          {loading || notifications === null ? (
             <p>Loading...</p>
           ) : notifications.length === 0 ? (
             <p className="text-muted">You're all caught up! 🎉</p>
@@ -67,7 +85,10 @@ const NotificationsPage = () => {
                     note.is_read ? "text-muted" : "fw-semibold"
                   }`}
                 >
-                  <Link to={parseLink(note.message)} className="text-decoration-none flex-grow-1">
+                  <Link
+                    to={parseLink(note.message)}
+                    className="text-decoration-none flex-grow-1"
+                  >
                     {note.message}
                   </Link>
                   <small className="text-secondary ms-3">
@@ -79,7 +100,6 @@ const NotificationsPage = () => {
           )}
         </main>
       </div>
-
       <Footer />
     </>
   );
