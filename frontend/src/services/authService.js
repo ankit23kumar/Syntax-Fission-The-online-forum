@@ -18,3 +18,10 @@ export const loginWithGoogle = (id_token) => {
 export const refreshToken = (refresh) => {
   return axios.post('http://127.0.0.1:8000/api/token/refresh/', { refresh });
 };
+
+export const logout = () => {
+  localStorage.removeItem('access');
+  localStorage.removeItem('refresh');
+  localStorage.removeItem('user');
+  window.location.href = '/login'; // redirect
+};

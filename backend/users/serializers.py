@@ -18,6 +18,12 @@ class UserSerializer(serializers.ModelSerializer):
             bio=validated_data.get('bio', '')
         )
 
+    def get_profile_picture(self, obj):
+        try:
+            return obj.profile_picture.url if obj.profile_picture else None
+        except Exception:
+            return None
+    
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)

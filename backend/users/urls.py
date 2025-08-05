@@ -7,7 +7,8 @@ from .views import (UserCreateView, UserDetailView, UserLoginView, GoogleAuthVie
                     UserAccountView,
                     DeleteUserAccountView,
                     UpdatePasswordView,
-                    verify_email
+                    verify_email,
+                    logout_view
                 )
 from rest_framework_simplejwt.views import TokenRefreshView
 
@@ -15,6 +16,7 @@ urlpatterns = [
     path('create/', UserCreateView.as_view(), name='user-create'),
     path('<int:user_id>/', UserDetailView.as_view(), name='user-detail'),
     path('login/', UserLoginView.as_view(), name='user-login'),
+    path('logout/', logout_view, name='user-logout'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
     path('google-auth/', GoogleAuthView.as_view(), name='google-auth'),
     path('profile/', UserProfileView.as_view(), name='user-profile'),

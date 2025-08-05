@@ -5,7 +5,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+
+import requests as http_requests
+from django.core.files.base import ContentFile
+from urllib.parse import urlparse
+import os
 
 from google.oauth2 import id_token
 from google.auth.transport import requests
@@ -50,12 +55,12 @@ class UserCreateView(generics.CreateAPIView):
         verification_url = self.request.build_absolute_uri(
             reverse('verify-email', kwargs={'uidb64': uidb64, 'token': token})
         )
-
+        login_url = "http://localhost:5173/login"   
         # Send verification email
         subject = 'Verify your email - Syntax Fission'
         message = render_to_string('emails/verify_email.html', {
             'user': user,
-            'verification_url': verification_url
+            'verify_url': verification_url
         })
         EmailMessage(subject, message, to=[user.email], headers={"Reply-To": "noreply@syntaxfission.com"}).send()
 
@@ -63,7 +68,9 @@ class UserCreateView(generics.CreateAPIView):
         raw_password = serializer.validated_data['password']
         welcome_msg = render_to_string('emails/welcome_credentials.html', {
             'user': user,
-            'password': raw_password
+            'email': user.email,
+            'password': raw_password,
+            'login_url': login_url
         })
         EmailMessage('Welcome to Syntax Fission', welcome_msg, to=[user.email]).send()
 
@@ -89,7 +96,8 @@ class UserLoginView(generics.GenericAPIView):
             'access': str(refresh.access_token),
             'user_id': user.user_id,
             'name': user.name,
-            'email': user.email
+            'email': user.email,
+            'is_admin': user.is_admin,
         })
 
 
@@ -102,6 +110,7 @@ class GoogleAuthView(APIView):
         token = serializer.validated_data.get("id_token")
 
         try:
+            # Verify token
             idinfo = id_token.verify_oauth2_token(token, requests.Request(), settings.GOOGLE_CLIENT_ID)
             email, name, picture = idinfo.get("email"), idinfo.get("name", ""), idinfo.get("picture", "")
 
@@ -109,12 +118,23 @@ class GoogleAuthView(APIView):
                 email=email,
                 defaults={
                     "name": name,
-                    "profile_picture": picture or None,
                     "password": make_password(get_random_string(12)),
-                    "is_active": True  # Assume Google accounts are already verified
+                    "is_active": True
                 }
             )
 
+            # If new user and Google has a picture, download it
+            if created and picture:
+                try:
+                    response = http_requests.get(picture)
+                    if response.status_code == 200:
+                        img_name = os.path.basename(urlparse(picture).path)
+                        user.profile_picture.save(img_name, ContentFile(response.content))
+                        user.save()
+                except Exception as e:
+                    print(" Profile picture download failed:", e)
+
+            # Create tokens
             refresh = RefreshToken.for_user(user)
             return Response({
                 "refresh": str(refresh),
@@ -122,15 +142,14 @@ class GoogleAuthView(APIView):
                 "user_id": user.user_id,
                 "name": user.name,
                 "email": user.email,
-                "profile_picture": user.profile_picture
+                "profile_picture": user.profile_picture.url if user.profile_picture else None
             })
 
         except ValueError:
             return Response({"error": "Invalid Google token"}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
+        
 class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -201,6 +220,7 @@ def logout_view(request):
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def verify_email(request, uidb64, token):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
