@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
+import Footer from "../components/Footer";
 import FilterSwitch from "../components/FilterSwitch";
 import { getAllQuestions } from "../services/qaService";
 import "../styles/NewQuestions.css";
@@ -106,6 +107,7 @@ const NewQuestions = () => {
           )}
         </main>
       </div>
+      <Footer/>
     </>
   );
 };

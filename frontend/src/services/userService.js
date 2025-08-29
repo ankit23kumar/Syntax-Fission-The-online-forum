@@ -2,9 +2,6 @@
 import axiosInstance from './api';
 
 export const getProfile = () => axiosInstance.get('/users/profile/');
-// export const updateProfile = (data) => axiosInstance.put('/users/profile/edit/', data);
-import api from './api';
-
 export const updateProfile = (formData) =>
   axiosInstance.put('/users/profile/edit/', formData, {
     headers: {

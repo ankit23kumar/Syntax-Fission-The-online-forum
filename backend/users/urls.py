@@ -8,7 +8,10 @@ from .views import (UserCreateView, UserDetailView, UserLoginView, GoogleAuthVie
                     DeleteUserAccountView,
                     UpdatePasswordView,
                     verify_email,
-                    logout_view
+                    logout_view,
+                    resend_verification_email,
+                    check_email_verification,
+                    CompleteProfileView,
                 )
 from rest_framework_simplejwt.views import TokenRefreshView
 
@@ -26,4 +29,7 @@ urlpatterns = [
     path('delete/', DeleteUserAccountView.as_view(), name='delete-user'),
     path('update-password/', UpdatePasswordView.as_view(), name='update-password'),
     path('verify-email/<uidb64>/<token>/', verify_email, name='verify-email'),
+    path('check-verification/', check_email_verification, name='check-verification'),
+    path('resend-verification/', resend_verification_email, name='resend-verification'),
+    path('complete-profile/', CompleteProfileView.as_view(), name='complete-profile'),
 ]

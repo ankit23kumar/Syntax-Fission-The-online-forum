@@ -1,13 +1,53 @@
 {% comment %} templates/emails/verify_email.html {% endcomment %}
 <!DOCTYPE html>
 <html>
-  <body>
-    <p>Hello {{ user.name }},</p>
+  <head>
+    <meta charset="utf-8" />
+    <title>Verify Your Email</title>
+  </head>
+  <body style="margin:0; padding:0; background-color:#f4f4f4;">
+    <table cellpadding="0" cellspacing="0" width="100%">
+      <tr>
+        <td align="center">
+          <table cellpadding="0" cellspacing="0" width="600" style="background-color:#ffffff; margin:40px auto; border-radius:8px; box-shadow:0 0 8px rgba(0,0,0,0.1); overflow:hidden;">
+            <!-- Header -->
+            <tr style="background-color:#343a40;">
+              <td style="padding:20px; text-align:center;">
+                <h1 style="margin:0; color:#ffffff; font-family:Arial, sans-serif; font-size:24px;">Syntax Fission</h1>
+              </td>
+            </tr>
 
-    <p>Please click the link below to verify your email address and activate your account:</p>
+            <!-- Body -->
+            <tr>
+              <td style="padding:30px; font-family:Arial, sans-serif; color:#495057;">
+                <h2 style="margin-top:0;">Hello {{ user.name }},</h2>
+                <p style="font-size:16px;">Please verify your email address to activate your account:</p>
 
-    <p>🔗 <a href="{{ verify_url }}">{{ verify_url }}</a></p>
+                <div style="text-align:center; margin: 30px 0;">
+                  <a href="{{ verify_url }}" style="background-color:#007bff; color:#ffffff; padding:12px 25px; text-decoration:none; font-weight:bold; border-radius:5px; display:inline-block;">
+                    Verify Email
+                  </a>
+                </div>
 
-    <p>Thanks,<br/>Syntax Fission Team</p>
+                <p style="font-size:14px; color:#868e96;">
+                  If the button doesn't work, copy and paste this URL into your browser:
+                  <br/>
+                  <a href="{{ verify_url }}" style="color:#007bff;">{{ verify_url }}</a>
+                </p>
+
+                <p style="margin-top:30px;">Thanks,<br /><strong>— The Syntax Fission Team</strong></p>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td style="padding:15px; background-color:#f1f1f1; font-size:12px; color:#868e96; text-align:center;">
+                © {{ current_year }} Syntax Fission. All rights reserved.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
   </body>
 </html>

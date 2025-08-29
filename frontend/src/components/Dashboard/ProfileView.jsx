@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getProfile } from "../../services/userService";
 import "../../styles/UserDashboard.css";
+import { RiVerifiedBadgeFill } from "react-icons/ri";
 
 const ProfileView = ({ onEditClick }) => {
   const [profile, setProfile] = useState(null);
@@ -35,20 +36,24 @@ const ProfileView = ({ onEditClick }) => {
 
         <div className="mb-3">
           <label className="form-label fw-semibold">Email Address</label>
-          <div className="form-control">{profile.email}</div>
+          <div className="form-control d-flex justify-content-between align-items-center">
+            <span>{profile.email}</span>
+            {profile.is_active && (
+              <span className="badge bg-success d-flex align-items-center">
+                <RiVerifiedBadgeFill className="me-1" /> Verified
+              </span>
+            )}
+          </div>
         </div>
 
         <div className="mb-3">
           <label className="form-label fw-semibold">Bio</label>
-          <div className="form-control" >
-            {profile.bio || "No bio added."}
-          </div>
+          <div className="form-control">{profile.bio || "No bio added."}</div>
         </div>
 
         <div className="mb-3 ">
           <label className="form-label fw-semibold">Password</label>
-          <div className="form-control">
-            {profile.password || "*********"}</div>
+          <div className="form-control">{profile.password || "*********"}</div>
         </div>
 
         <button className="btn btn-info text-white mt-3" onClick={onEditClick}>

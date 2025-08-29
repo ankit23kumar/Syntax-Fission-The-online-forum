@@ -30,7 +30,7 @@ axiosInstance.interceptors.response.use(
 
       try {
         const refreshToken = localStorage.getItem('refresh');
-        const response = await axios.post(`${BASE_URL}/token/refresh/`, { refresh: refreshToken });
+        const response = await axios.post(`${BASE_URL}/users/token/refresh/`, { refresh: refreshToken });
 
         const newAccess = response.data.access;
 

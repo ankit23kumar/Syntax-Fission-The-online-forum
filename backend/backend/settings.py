@@ -34,14 +34,34 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
+# REST_FRAMEWORK = {
+#     "DEFAULT_AUTHENTICATION_CLASSES": (
+#         "rest_framework_simplejwt.authentication.JWTAuthentication",
+#     ),
+#     "DEFAULT_PERMISSION_CLASSES": [
+#         "rest_framework.permissions.IsAuthenticated",
+#     ],
+# }
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-    ),
-    "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticated",
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
     ],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    ),
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.FormParser',
+        'rest_framework.parsers.MultiPartParser',
+    ),
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
+    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.NamespaceVersioning',
+    'DEFAULT_ROUTER_TRAILING_SLASH': False,
 }
+
 
 SIMPLE_JWT = {
     'USER_ID_FIELD': 'user_id',
@@ -167,7 +187,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # 👇 This is preferred for development:
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  # Vite dev server
+    "http://localhost:5173", 
+    "http://127.0.0.1:5173",# Vite dev server
 ]
 
 # If you need to send cookies/auth headers
@@ -191,3 +212,27 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")  # Set in .env
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")  # Set in .env
 DEFAULT_FROM_EMAIL = 'Syntax Fission <noreply@syntaxfission.com>'  # customize if needed
+print("EMAIL_HOST_USER:", EMAIL_HOST_USER)
+print("EMAIL_HOST_PASSWORD length:", len(EMAIL_HOST_PASSWORD) if EMAIL_HOST_PASSWORD else "None")
+
+
+DEFAULT_FROM_EMAIL = 'Syntax Fission <noreply@syntaxfission.com>'
+EMAIL_REPLY_TO = ['support@syntaxfission.com']
+
+
+# FRONTEND_URL = "https://syntaxfission.com"  # Production frontend domain
+# Email verification config
+USE_FRONTEND_FOR_VERIFY = os.getenv("USE_FRONTEND_FOR_VERIFY", "true").lower() == "true"
+ENV_MODE = os.getenv("ENV_MODE", "localhost").lower()
+
+if ENV_MODE == "localhost":
+    FRONTEND_URL = os.getenv("LOCAL_FRONTEND_URL", "http://127.0.0.1:5173")
+    BACKEND_URL = os.getenv("LOCAL_BACKEND_URL", "http://127.0.0.1:8000")
+elif ENV_MODE == "lan":
+    FRONTEND_URL = os.getenv("LAN_FRONTEND_URL")
+    BACKEND_URL = os.getenv("LAN_BACKEND_URL")
+elif ENV_MODE == "production":
+    FRONTEND_URL = os.getenv("PROD_FRONTEND_URL")
+    BACKEND_URL = os.getenv("PROD_BACKEND_URL")
+else:
+    raise ValueError(f"Invalid ENV_MODE: {ENV_MODE}")

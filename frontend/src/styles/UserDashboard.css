@@ -73,6 +73,11 @@
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
   animation: fadeIn 0.2s ease-out;
 }
+.badge {
+  font-size: 0.85rem;
+  padding: 0.4em 0.6em;
+  border-radius: 0.4rem;
+}
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-10px); }

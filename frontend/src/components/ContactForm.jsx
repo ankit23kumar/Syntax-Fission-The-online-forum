@@ -17,11 +17,11 @@ const ContactForm = () => {
         {/* Contact Form */}
         <form className="contact-form col-md-6">
           <div className="mb-3 d-flex flex-column flex-md-row gap-2">
-            <input type="text" placeholder="Your Full Name" className="form-control" />
-            <input type="text" placeholder="Your Full Name" className="form-control" />
+            <input type="text" placeholder="Your First Name" className="form-control" />
+            <input type="text" placeholder="Your Last Name" className="form-control" />
           </div>
-          <input type="email" placeholder="Your Full Name" className="form-control mb-3" />
-          <textarea rows="3" placeholder="Your Full Name" className="form-control mb-3"></textarea>
+          <input type="email" placeholder="Your Email Address" className="form-control mb-3" />
+          <textarea rows="3" placeholder="Your Thought & Feedback" className="form-control mb-3"></textarea>
           <button type="submit" className="btn">📨Send Message</button>
         </form>
       </div>
