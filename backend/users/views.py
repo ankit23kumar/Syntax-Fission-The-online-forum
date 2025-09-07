@@ -12,6 +12,9 @@ import requests as http_requests
 from django.core.files.base import ContentFile
 from urllib.parse import urlparse
 import os
+import random
+from datetime import datetime
+from django.utils import timezone
 
 from google.oauth2 import id_token
 from google.auth.transport import requests
@@ -42,17 +45,6 @@ from answers.models import Answer
 from questions.serializers import QuestionTitleSerializer
 from answers.serializers import AnswerSummarySerializer
 
-
-# Helper: Build verification URL based on ENV_MODE & USE_FRONTEND_FOR_VERIFY
-def build_verification_url(uidb64, token):
-    if settings.ENV_MODE in ["localhost", "lan"]:
-        if getattr(settings, "USE_FRONTEND_FOR_VERIFY", True):
-            return f"{settings.FRONTEND_URL}/verify-email/{uidb64}/{token}/"
-        else:
-            return f"{settings.BACKEND_URL}{reverse('verify-email', kwargs={'uidb64': uidb64, 'token': token})}"
-    return f"{settings.FRONTEND_URL}/verify-email/{uidb64}/{token}/"
-
-
 class UserCreateView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -61,23 +53,25 @@ class UserCreateView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = serializer.save(is_active=False)  # inactive until verification
+        user = serializer.save(is_active=False)
 
+        # Generate and save OTP
+        otp = str(random.randint(100000, 999999))
+        user.otp = otp
+        user.otp_expiry = timezone.now() + timezone.timedelta(minutes=10)
+        user.save()
+
+        # Send OTP email
         current_year = datetime.now().year
-        token = default_token_generator.make_token(user)
-        uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
-        verification_url = build_verification_url(uidb64, token)
-
-        # Send verification email
-        subject = 'Verify your email - Syntax Fission'
-        message = render_to_string('emails/verify_email.html', {
+        subject = f'Your Syntax Fission Verification Code: {otp}'
+        message = render_to_string('emails/verify_otp.html', {
             'user': user,
-            'verify_url': verification_url,
+            'otp': otp,
             'current_year': current_year
         })
         email = EmailMultiAlternatives(
             subject=subject,
-            body="Please verify your email.",
+            body=f"Your verification code is {otp}",
             from_email=settings.DEFAULT_FROM_EMAIL,
             to=[user.email],
             headers={"Reply-To": settings.EMAIL_REPLY_TO}
@@ -86,11 +80,113 @@ class UserCreateView(generics.CreateAPIView):
         email.send(fail_silently=False)
 
         return Response({
-            "message": "Registration successful. Please verify your email to continue.",
+            "message": "Registration successful. Please check your email for a 6-digit OTP.",
             "email": user.email,
-            "uidb64": uidb64,
-            "verification_url": verification_url
         }, status=status.HTTP_201_CREATED)
+
+
+# --- NEW: View to verify the OTP ---
+class VerifyOTPView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        email = request.data.get("email", "").strip().lower()
+        otp = request.data.get("otp", "").strip()
+
+        if not email or not otp:
+            return Response({"error": "Email and OTP are required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = User.objects.filter(email__iexact=email).first()
+
+        if not user:
+            return Response({"error": "User with this email not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        if user.is_active:
+            return Response({'message': 'This account is already active.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not (user.otp == otp and user.otp_expiry and timezone.now() < user.otp_expiry):
+            return Response({"error": "The OTP is invalid or has expired."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # OTP is valid, activate the user and clear OTP fields
+        user.is_active = True
+        user.otp = None
+        user.otp_expiry = None
+        user.save()
+
+        # +++ ADDED: Send the Welcome Email upon successful verification +++
+        current_year = datetime.now().year
+        login_url = f"{settings.FRONTEND_URL}/login"
+        welcome_msg = render_to_string('emails/welcome_credentials.html', {
+            'user': user,
+            'email': user.email,
+            'password': '(The password you set during registration)',
+            'login_url': login_url,
+            'current_year': current_year
+        })
+        email_msg = EmailMultiAlternatives(
+            subject='Welcome to Syntax Fission!',
+            body="Welcome! Your account is now active.",
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[user.email],
+            headers={"Reply-To": settings.EMAIL_REPLY_TO}
+        )
+        email_msg.attach_alternative(welcome_msg, "text/html")
+        email_msg.send(fail_silently=False)
+        # +++ END OF ADDED CODE +++
+
+        # Issue tokens to automatically log the user in
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            'message': 'Email successfully verified! You are now logged in.',
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+            'user_id': user.user_id,
+            'name': user.name,
+            'email': user.email
+        })
+
+
+# --- REWRITTEN: Now resends an OTP, not a link ---
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def resend_verification_email(request):
+    email = request.data.get('email', "").strip().lower()
+    if not email:
+        return Response({'error': 'Email is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    user = User.objects.filter(email__iexact=email).first()
+
+    if not user:
+        return Response({'error': 'User with this email not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    if user.is_active:
+        return Response({'message': 'This account has already been verified.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Generate and save a new OTP
+    otp = str(random.randint(100000, 999999))
+    user.otp = otp
+    user.otp_expiry = timezone.now() + timezone.timedelta(minutes=10)
+    user.save()
+
+    # Send the new OTP email
+    current_year = datetime.now().year
+    subject = f'Your New Syntax Fission Verification Code: {otp}'
+    message = render_to_string('emails/verify_otp.html', {
+        'user': user,
+        'otp': otp,
+        'current_year': current_year
+    })
+    email_msg = EmailMultiAlternatives(
+        subject=subject,
+        body=f"Your new verification code is {otp}",
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[user.email],
+        headers={"Reply-To": settings.EMAIL_REPLY_TO}
+    )
+    email_msg.attach_alternative(message, "text/html")
+    email_msg.send(fail_silently=False)
+
+    return Response({'message': 'A new OTP has been sent to your email.'})
 
 
 class UserDetailView(generics.RetrieveUpdateAPIView):
@@ -318,102 +414,6 @@ def verify_email(request, uidb64, token):
         return Response(response_data)
 
     return Response({'error': 'Invalid or expired token.'}, status=status.HTTP_400_BAD_REQUEST)
-
-
-# @api_view(['GET'])
-# @permission_classes([AllowAny])
-# def verify_email(request, uidb64, token):
-#     try:
-#         uid = force_str(urlsafe_base64_decode(uidb64))
-#         user = get_object_or_404(User, pk=uid)
-#     except Exception:
-#         return Response({'error': 'Invalid verification link.'}, status=status.HTTP_400_BAD_REQUEST)
-
-#     if user.is_active:
-#         return Response({'message': 'Email already verified.'})
-
-#     if default_token_generator.check_token(user, token):
-#         user.is_active = True
-#         user.save()
-
-#         # Issue tokens after successful verification
-#         refresh = RefreshToken.for_user(user)
-
-#         current_year = datetime.now().year
-#         login_url = f"{settings.FRONTEND_URL}/login"
-#         welcome_msg = render_to_string('emails/welcome_credentials.html', {
-#             'user': user,
-#             'email': user.email,
-#             'password': getattr(user, 'raw_password', '(Set during registration)'),
-#             'login_url': login_url,
-#             'current_year': current_year
-#         })
-#         email = EmailMultiAlternatives(
-#             subject='Welcome to Syntax Fission',
-#             body="Welcome to Syntax Fission.",
-#             from_email=settings.DEFAULT_FROM_EMAIL,
-#             to=[user.email],
-#             headers={"Reply-To": settings.EMAIL_REPLY_TO}
-#         )
-#         email.attach_alternative(welcome_msg, "text/html")
-#         email.send(fail_silently=False)
-
-#         return Response({
-#             'message': 'Email successfully verified!',
-#             'refresh': str(refresh),
-#             'access': str(refresh.access_token),
-#             'user_id': user.user_id,
-#             'name': user.name,
-#             'email': user.email
-#         })
-
-#     return Response({'error': 'Invalid or expired token.'}, status=status.HTTP_400_BAD_REQUEST)
-
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def check_email_verification(request):
-    email = request.query_params.get("email", "").strip().lower()
-    if not email:
-        return Response({"verified": False, "error": "Email is required"}, status=400)
-
-    user = User.objects.filter(email__iexact=email).first()
-    if not user:
-        # Don’t 404 here — frontend modal expects a consistent shape
-        return Response({"verified": False})
-
-    return Response({"verified": user.is_active})
-
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def resend_verification_email(request):
-    email = request.data.get('email')
-    user = User.objects.filter(email=email).first()
-    if not user:
-        return Response({'error': 'User not found'}, status=404)
-    if user.is_active:
-        return Response({'message': 'Email already verified'}, status=400)
-
-    token = default_token_generator.make_token(user)
-    uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
-    verification_url = build_verification_url(uidb64, token)
-    current_year = datetime.now().year
-
-    message = render_to_string('emails/verify_email.html', {
-        'user': user,
-        'verify_url': verification_url,
-        'current_year': current_year
-    })
-    email = EmailMultiAlternatives(
-        subject='Resend Email Verification - Syntax Fission',
-        body="Please verify your email.",
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        to=[user.email],
-        headers={"Reply-To": settings.EMAIL_REPLY_TO}
-    )
-    email.attach_alternative(message, "text/html")
-    email.send(fail_silently=False)
-
-    return Response({'message': 'Verification email resent successfully'})
 
 
 class CompleteProfileView(APIView):

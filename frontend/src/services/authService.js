@@ -34,33 +34,16 @@ export const logout = () => {
   window.location.href = '/login';
 };
 
-
-export const checkEmailVerified = async (email) => {
-  try {
-    const res = await axios.get(`${BASE_URL}check-verification/`, {
-      params: { email }
-    });
-    return res.data?.verified === true;
-  } catch {
-    return false;
-  }
+// +++ NEW: Function to verify the OTP +++
+export const verifyOTP = async (email, otp) => {
+  return axios.post(`${BASE_URL}verify-otp/`, { email, otp });
 };
-export const verifyEmail = async (uidb64, token) => {
-  try {
-    const res = await axios.get(`${BASE_URL}verify-email/${uidb64}/${token}/`);
-    const { access, refresh, user_id, name, email } = res.data;
 
-    if (access && refresh) {
-      localStorage.setItem("access", access);
-      localStorage.setItem("refresh", refresh);
-      localStorage.setItem("user", JSON.stringify({ user_id, name, email }));
-    }
-
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || { detail: "Email verification failed" };
-  }
+// +++ NEW: Function to resend the OTP +++
+export const resendOTP = async (email) => {
+  return axios.post(`${BASE_URL}resend-otp/`, { email });
 };
+
 
 // Resend verification email
 export const resendVerificationEmail = async (email) => {

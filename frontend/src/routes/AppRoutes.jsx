@@ -20,7 +20,6 @@ import AdminLayout from "../pages/AdminLayout";
 import AdminNotifications from "../pages/AdminNotifications"
 import AdminAnswers from "../pages/AdminAnswers"
 import AdminVotes from "../pages/AdminVotes"
-import VerifyEmailPage from "../pages/VerifyEmailPage";
 
 const AppRoutes = () => {
   return (
@@ -30,7 +29,6 @@ const AppRoutes = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/register/step-2" element={<RegisterStep2 />} />
-      <Route path="/verify-email/:uidb64/:token/" element={<VerifyEmailPage />} />
       {/* User-only */}
       <Route path="/dashboard/*" element={<Dashboard />} />
       <Route path="/new-questions" element={<NewQuestions />} />

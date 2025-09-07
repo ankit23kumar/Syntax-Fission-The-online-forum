@@ -4,9 +4,10 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "../styles/Register.css";
 import registerIllustration from "../assets/authentication_rafiki.svg";
-import { registerUser, loginWithGoogle } from "../services/authService"; // `resendVerificationEmail` is no longer needed here
+// Import the new OTP service functions
+import { registerUser, loginWithGoogle } from "../services/authService";
 import { useToast } from "../contexts/ToastContext";
-import VerifyEmailModal from "../components/VerifyEmailModal"; // The rewritten, simpler modal
+import OTPModal from "../components/OTPModal"; // Import the new OTP modal
 
 // Icons
 import { BiRename, BiArrowBack, BiShow, BiHide } from "react-icons/bi";
@@ -24,37 +25,45 @@ const Register = () => {
     isAdmin: false,
   });
 
+  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [showVerifyModal, setShowVerifyModal] = useState(false);
+  const [showOtpModal, setShowOtpModal] = useState(false); // State to control the OTP modal
 
-  // Handle form submit
+  // Handle the initial form submission (Step 1: Registration)
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      // This function call remains the same
+      // This backend call now creates the user and sends the OTP email
       await registerUser(form);
-
-      // CHANGE 1: Remove insecure localStorage usage.
-      // The user's password or temp data should not be stored in the browser.
-      // DELETE a line like: localStorage.setItem("userTempData", ...);
-      // DELETE a line like: localStorage.setItem("registerCreds", ...);
-
-      // Show the verification modal and a success toast
-      setShowVerifyModal(true);
-      showToast("Registration successful! Please check your email.", "info");
-
+      showToast("Registration successful! Check your email for a 6-digit OTP.", "info");
+      // Open the OTP modal to proceed to the next step
+      setShowOtpModal(true);
     } catch (err) {
       console.error("Registration failed:", err);
-      // Provide a more specific error if possible from the backend response
       const errorMessage = err.response?.data?.email?.[0] || "Registration failed. The email may already be in use.";
       showToast(errorMessage, "danger");
+    } finally {
+      setLoading(false);
     }
   };
 
-  // CHANGE 2: The `handleResendEmail` function is no longer needed in this component.
-  // The rewritten `VerifyEmailModal` handles its own resend logic.
+  // This function is called by OTPModal upon successful verification (Step 2: Verification)
+  const handleVerificationSuccess = (data) => {
+    // The /verify-otp/ endpoint returns tokens and user data upon success
+    const { access, refresh, user_id, name, email } = data;
 
-  // Google Signup (No changes needed here, this flow is separate and correct)
+    // Save tokens to localStorage to log the user in
+    localStorage.setItem("access", access);
+    localStorage.setItem("refresh", refresh);
+    localStorage.setItem("user", JSON.stringify({ user_id, name, email }));
+
+    // Close the modal and navigate to the profile completion page (Step 3)
+    setShowOtpModal(false);
+    navigate("/register/step-2");
+  };
+
+  // Google Signup (This remains unchanged as it's a separate flow)
   const handleGoogleSignup = async (response) => {
     const idToken = response.credential;
     if (!idToken) {
@@ -74,7 +83,7 @@ const Register = () => {
     }
   };
 
-  // Init Google signup (No changes needed)
+  // Initialize Google Signup Button (remains unchanged)
   useEffect(() => {
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
     if (window.google && clientId) {
@@ -91,14 +100,14 @@ const Register = () => {
 
   return (
     <div className="container-fluid register-page d-flex flex-column flex-md-row p-0">
-      {/* Left Panel (No changes needed) */}
+      {/* Left Panel - No Changes */}
       <div className="register-left d-flex flex-column justify-content-center align-items-center text-white px-4 py-5">
         <img src={registerIllustration} alt="Register Illustration" className="img-fluid mb-4 animate-fade-in" style={{ maxHeight: 450 }} />
         <h2 className="fw-bold text-center animate-slide-up">Sign up to join us</h2>
         <p className="text-center mt-2 animate-slide-up">Think, ask, and learn from <span className="text-warning">Syntax Fission</span></p>
       </div>
 
-      {/* Right Panel (No changes needed in the form itself) */}
+      {/* Right Panel - No Changes to the form inputs */}
       <div className="register-right d-flex flex-column justify-content-center align-items-center px-4 py-5">
         <div className="register-form-wrapper w-100" style={{ maxWidth: "550px" }}>
           <Link to="/" className="text-decoration-none text-muted mb-3 d-inline-block back-icon">
@@ -109,7 +118,6 @@ const Register = () => {
           <p className="mb-4">Please enter your details below</p>
 
           <form onSubmit={handleSubmit}>
-            {/* Form inputs are all correct, no changes needed */}
             <div className="input-group input-group-lg mb-3 hover-input">
               <span className="input-group-text bg-light"><BiRename /></span>
               <input type="text" placeholder="Name" className="form-control" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
@@ -129,7 +137,9 @@ const Register = () => {
               <input className="form-check-input" type="checkbox" id="adminCheck" checked={form.isAdmin} onChange={(e) => setForm({ ...form, isAdmin: e.target.checked })} />
               <label className="form-check-label" htmlFor="adminCheck">Are you Admin?</label>
             </div>
-            <button type="submit" className="btn btn-info text-white btn-lg w-100 mb-3">Register</button>
+            <button type="submit" className="btn btn-info text-white btn-lg w-100 mb-3" disabled={loading}>
+              {loading ? 'Registering...' : 'Register'}
+            </button>
           </form>
 
           <div className="text-center my-3 text-muted">──────── or continue ────────</div>
@@ -138,17 +148,12 @@ const Register = () => {
         </div>
       </div>
 
-      {/* Email Verification Modal */}
-      {showVerifyModal && (
-        <VerifyEmailModal
+      {/* NEW: Render the OTP Modal when showOtpModal is true */}
+      {showOtpModal && (
+        <OTPModal
           email={form.email}
-          // CHANGE 3: Update onClose logic.
-          // This guides the user to the login page if they close the modal,
-          // which is the correct next step for them.
-          onClose={() => {
-            setShowVerifyModal(false);
-            navigate("/login");
-          }}
+          onVerifySuccess={handleVerificationSuccess}
+          onClose={() => setShowOtpModal(false)}
         />
       )}
     </div>
