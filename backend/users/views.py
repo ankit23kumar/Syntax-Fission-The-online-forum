@@ -268,7 +268,6 @@ def logout_view(request):
     logout(request)
     return Response({"detail": "Logged out successfully."})
 
-
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def verify_email(request, uidb64, token):
@@ -278,45 +277,97 @@ def verify_email(request, uidb64, token):
     except Exception:
         return Response({'error': 'Invalid verification link.'}, status=status.HTTP_400_BAD_REQUEST)
 
-    if user.is_active:
-        return Response({'message': 'Email already verified.'})
+    # --- THIS IS THE KEY CHANGE ---
+    # We will now handle both the first verification and subsequent clicks the same way.
+    # The goal is always to log the user in by providing tokens.
 
-    if default_token_generator.check_token(user, token):
-        user.is_active = True
-        user.save()
+    is_first_verification = not user.is_active
 
-        # Issue tokens after successful verification
+    if default_token_generator.check_token(user, token) or user.is_active:
+        if not user.is_active:
+            user.is_active = True
+            user.save()
+
+        # Always issue fresh tokens. This solves the race condition.
         refresh = RefreshToken.for_user(user)
-
-        current_year = datetime.now().year
-        login_url = f"{settings.FRONTEND_URL}/login"
-        welcome_msg = render_to_string('emails/welcome_credentials.html', {
-            'user': user,
-            'email': user.email,
-            'password': getattr(user, 'raw_password', '(Set during registration)'),
-            'login_url': login_url,
-            'current_year': current_year
-        })
-        email = EmailMultiAlternatives(
-            subject='Welcome to Syntax Fission',
-            body="Welcome to Syntax Fission.",
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            to=[user.email],
-            headers={"Reply-To": settings.EMAIL_REPLY_TO}
-        )
-        email.attach_alternative(welcome_msg, "text/html")
-        email.send(fail_silently=False)
-
-        return Response({
+        response_data = {
             'message': 'Email successfully verified!',
             'refresh': str(refresh),
             'access': str(refresh.access_token),
             'user_id': user.user_id,
             'name': user.name,
             'email': user.email
-        })
+        }
+
+        # Only send the full welcome email on the very first verification.
+        if is_first_verification:
+            current_year = datetime.now().year
+            login_url = f"{settings.FRONTEND_URL}/login"
+            welcome_msg = render_to_string('emails/welcome_credentials.html', {
+                'user': user, 'email': user.email, 'password': '(Set during registration)',
+                'login_url': login_url, 'current_year': current_year
+            })
+            email = EmailMultiAlternatives(
+                subject='Welcome to Syntax Fission', body="Welcome to Syntax Fission.",
+                from_email=settings.DEFAULT_FROM_EMAIL, to=[user.email],
+                headers={"Reply-To": settings.EMAIL_REPLY_TO}
+            )
+            email.attach_alternative(welcome_msg, "text/html")
+            email.send(fail_silently=False)
+
+        return Response(response_data)
 
     return Response({'error': 'Invalid or expired token.'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+# @api_view(['GET'])
+# @permission_classes([AllowAny])
+# def verify_email(request, uidb64, token):
+#     try:
+#         uid = force_str(urlsafe_base64_decode(uidb64))
+#         user = get_object_or_404(User, pk=uid)
+#     except Exception:
+#         return Response({'error': 'Invalid verification link.'}, status=status.HTTP_400_BAD_REQUEST)
+
+#     if user.is_active:
+#         return Response({'message': 'Email already verified.'})
+
+#     if default_token_generator.check_token(user, token):
+#         user.is_active = True
+#         user.save()
+
+#         # Issue tokens after successful verification
+#         refresh = RefreshToken.for_user(user)
+
+#         current_year = datetime.now().year
+#         login_url = f"{settings.FRONTEND_URL}/login"
+#         welcome_msg = render_to_string('emails/welcome_credentials.html', {
+#             'user': user,
+#             'email': user.email,
+#             'password': getattr(user, 'raw_password', '(Set during registration)'),
+#             'login_url': login_url,
+#             'current_year': current_year
+#         })
+#         email = EmailMultiAlternatives(
+#             subject='Welcome to Syntax Fission',
+#             body="Welcome to Syntax Fission.",
+#             from_email=settings.DEFAULT_FROM_EMAIL,
+#             to=[user.email],
+#             headers={"Reply-To": settings.EMAIL_REPLY_TO}
+#         )
+#         email.attach_alternative(welcome_msg, "text/html")
+#         email.send(fail_silently=False)
+
+#         return Response({
+#             'message': 'Email successfully verified!',
+#             'refresh': str(refresh),
+#             'access': str(refresh.access_token),
+#             'user_id': user.user_id,
+#             'name': user.name,
+#             'email': user.email
+#         })
+
+#     return Response({'error': 'Invalid or expired token.'}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -366,19 +417,11 @@ def resend_verification_email(request):
 
 
 class CompleteProfileView(APIView):
-    permission_classes = [AllowAny]  # First-time profile completion before login
+    permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def post(self, request):
-        email = request.data.get("email")
-        user = User.objects.filter(email=email).first()
-
-        if not user:
-            return Response({"error": "User not found"}, status=404)
-
-        if not user.is_active:
-            return Response({"error": "Email not verified"}, status=403)
-
+        user = request.user
         bio = request.data.get("bio")
         if bio:
             user.bio = bio
@@ -387,4 +430,6 @@ class CompleteProfileView(APIView):
             user.profile_picture = request.FILES["profile_picture"]
 
         user.save()
-        return Response({"message": "Profile completed successfully"})
+
+        serializer = UserProfileSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)

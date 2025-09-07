@@ -1,124 +1,106 @@
-// src/pages/VerifyEmailModal.jsx
+// src/components/VerifyEmailModal.jsx
 import React, { useState, useEffect } from "react";
-import { BiX } from "react-icons/bi";
-import {
-  checkEmailVerified,
-  resendVerificationEmail,
-  verifyEmail,
-  loginUser,
-} from "../services/authService";
 import { useNavigate } from "react-router-dom";
+import { BiX } from "react-icons/bi";
+import { resendVerificationEmail, checkEmailVerified } from "../services/authService";
+import { useToast } from "../contexts/ToastContext";
 
 const VerifyEmailModal = ({ email, onClose }) => {
   const [resending, setResending] = useState(false);
-  const [verified, setVerified] = useState(false);
-  const [verifying, setVerifying] = useState(true);
+  const { showToast } = useToast();
   const navigate = useNavigate();
 
-  // Extract uidb64/token from URL if present
-  const verifyEmailFromUrl = async () => {
-    const pathParts = window.location.pathname.split("/");
-    const idx = pathParts.indexOf("verify-email");
-    if (idx !== -1 && pathParts[idx + 1] && pathParts[idx + 2]) {
-      const uidb64 = pathParts[idx + 1];
-      const token = pathParts[idx + 2];
-      try {
-        await verifyEmail(uidb64, token); // stores tokens if provided
-      } catch (err) {
-        console.error("Verify email failed:", err);
-      }
-    }
-  };
+  useEffect(() => {
+    let redirected = false;
+    let intervalId = null;
 
-  // 🔑 Auto-login helper
-  const autoLogin = async () => {
-    const creds = JSON.parse(localStorage.getItem("registerCreds"));
-    if (creds?.email && creds?.password) {
-      try {
-        const res = await loginUser(creds.email, creds.password);
-        const { access, refresh, user_id, name, email } = res.data;
-        localStorage.setItem("access", access);
-        localStorage.setItem("refresh", refresh);
-        localStorage.setItem("user", JSON.stringify({ user_id, name, email }));
-        navigate("/register2");
-      } catch (err) {
-        console.error("Auto-login failed:", err);
+    // --- The Single, Smart Decision-Making Function ---
+    // This function is the key to eliminating the race condition.
+    const handleVerificationSuccess = () => {
+      if (redirected) return;
+      redirected = true;
+
+      // The critical logic: check if THIS browser has the tokens.
+      if (localStorage.getItem('access')) {
+        // If tokens exist here, we know this is a same-browser (cross-tab) success.
+        showToast("Verification successful!", "success");
+        navigate("/register/step-2");
+      } else {
+        // If no tokens are here, the verification must have happened in another browser.
+        showToast("Email verified! Please log in to continue.", "success");
         navigate("/login");
       }
-    } else {
-      navigate("/login"); // fallback if no creds
-    }
-  };
+    };
 
-  // Poll backend until verified
-  useEffect(() => {
-    if (verified) return;
-
-    const interval = setInterval(async () => {
-      try {
-        const status = await checkEmailVerified(email);
-        if (status) {
-          await verifyEmailFromUrl();
-          setVerified(true);
-          setVerifying(false);
-          clearInterval(interval);
-
-          // Auto-login after 1s
-          setTimeout(autoLogin, 1000);
-        }
-      } catch (err) {
-        console.error("Verification check failed", err);
+    // --- STRATEGY 1: The Fast Path Listener ---
+    // It now calls our smart function instead of navigating directly.
+    const handleStorageChange = (event) => {
+      if (event.key === 'access' && event.newValue) {
+        handleVerificationSuccess();
       }
-    }, 5000);
+    };
+    window.addEventListener('storage', handleStorageChange);
 
-    return () => clearInterval(interval);
-  }, [email, verified]);
+    // --- STRATEGY 2: The Robust Polling Fallback ---
+    // It ALSO calls our smart function. Now it doesn't matter which runs first.
+    intervalId = setInterval(async () => {
+      if (redirected) return;
+      try {
+        const isVerified = await checkEmailVerified(email);
+        if (isVerified) {
+          // The polling detected a verification. Let the smart function decide the next step.
+          handleVerificationSuccess();
+        }
+      } catch (error) {
+        console.error("Polling for verification failed:", error);
+      }
+    }, 5000); // We can remove the grace period as this logic is now fully robust.
+
+
+    // --- CLEANUP FUNCTION ---
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(intervalId);
+    };
+
+  }, [email, navigate, showToast]);
+
 
   const handleResend = async () => {
+    setResending(true);
     try {
-      setResending(true);
       await resendVerificationEmail(email);
+      showToast("Verification email has been sent again.", "success");
     } catch (error) {
       console.error("Resend failed:", error);
+      showToast("Failed to resend the verification email.", "danger");
     } finally {
       setResending(false);
     }
   };
-
   return (
     <div className="verify-overlay">
       <div className="verify-modal animate-fade-in">
         <button className="btn-close-modal" onClick={onClose}>
           <BiX size={24} />
         </button>
-
-        <h4 className="mb-3">Verify Your Email</h4>
+        <h4 className="mb-3">Last Step: Verify Your Email</h4>
         <p className="text-muted">
           A confirmation link has been sent to <b>{email}</b>.
           <br />
-          Please verify your email to continue.
+          Clicking the link will complete your registration.
         </p>
-
-        {verified ? (
-          <p className="text-success fw-bold my-3">✅ Email verified! Logging in…</p>
-        ) : verifying ? (
-          <>
-            <div className="spinner-border text-info my-3" role="status">
-              <span className="visually-hidden">Checking...</span>
-            </div>
-            <p className="small text-secondary">Waiting for verification...</p>
-          </>
-        ) : null}
-
-        {!verified && (
-          <button
-            className="btn btn-outline-info btn-sm mt-3"
-            onClick={handleResend}
-            disabled={resending}
-          >
-            {resending ? "Resending..." : "Resend Email"}
-          </button>
-        )}
+        <div className="spinner-border text-info my-3" role="status">
+          <span className="visually-hidden">Waiting...</span>
+        </div>
+        <p className="small text-secondary">Waiting for you to click the link...</p>
+        <button
+          className="btn btn-outline-info btn-sm mt-3"
+          onClick={handleResend}
+          disabled={resending}
+        >
+          {resending ? "Resending..." : "Resend Email"}
+        </button>
       </div>
     </div>
   );

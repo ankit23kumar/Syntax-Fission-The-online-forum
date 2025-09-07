@@ -1,7 +1,6 @@
 // src/services/authService.js
 
 import axios from 'axios';
-import axiosInstance from './api';
 
 const BASE_URL = 'http://127.0.0.1:8000/api/users/';
 
@@ -12,22 +11,6 @@ export const registerUser = (userData) => {
       ? { 'Content-Type': 'multipart/form-data' }
       : { 'Content-Type': 'application/json' },
   });
-};
-
-// Complete profile after Step 1 registration & email verification
-export const completeProfile = async (formData) => {
-  if (!(formData instanceof FormData)) {
-    throw new Error("completeProfile expects FormData");
-  }
-
-  try {
-    const res = await axiosInstance.post(`${BASE_URL}complete-profile/`, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-    return res.data;
-  } catch (err) {
-    throw err.response?.data || { detail: "Failed to complete profile" };
-  }
 };
 
 
