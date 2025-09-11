@@ -68,7 +68,6 @@ const AskQuestion = () => {
 
   return (
     <div className="ask-question-page d-flex">
-      <Sidebar />
 
       <main className="flex-grow-1 p-4">
         <h2 className="fw-bold">Ask a Public Question</h2>

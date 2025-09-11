@@ -1,22 +1,16 @@
-import React from 'react'
-import { BrowserRouter as Router } from 'react-router-dom'
-import AppRoutes from './routes/AppRoutes'
-import Navbar from './components/Navbar'
-import Footer from './components/Footer'
+// src/App.jsx
+
+import React from 'react';
+import { BrowserRouter as Router } from 'react-router-dom';
+import AppRoutes from './routes/AppRoutes';
 
 const App = () => {
   return (
-    <>
     <Router>
-      {/* <Navbar /> */}
-      <main className="flex-grow-1">
-        <AppRoutes />
-      </main>
-      {/* <Footer /> */}
+      {/* AppRoutes will now handle ALL page rendering and layout logic */}
+      <AppRoutes />
     </Router>
-    </>
-    
-  )
+  );
 }
 
-export default App
+export default App;

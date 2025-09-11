@@ -1,0 +1,35 @@
+// src/pages/AboutPage.jsx
+
+import React from 'react';
+import { motion } from 'framer-motion';
+import AboutSection from '../components/AboutSection'; // <-- Reusing your existing component
+import '../styles/PageHeader.css'; // <-- Using our new shared styles
+
+const AboutPage = () => {
+  return (
+    // We use a container but remove the default padding from AboutSection to avoid double padding
+    <div className="page-header-container">
+      <div className="container">
+        <motion.div
+          className="page-header text-center"
+          initial={{ y: -30, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+        >
+          <h1 className="display-4">About Syntax Fission</h1>
+          <p className="fs-5 mt-2">
+            Discover our mission, our community, and the vision that drives our platform.
+          </p>
+        </motion.div>
+      </div>
+
+      {/* 
+        Here, we render your existing AboutSection.
+        It will animate into view as the user scrolls, just like on the homepage.
+      */}
+      <AboutSection />
+    </div>
+  );
+};
+
+export default AboutPage;

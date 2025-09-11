@@ -41,3 +41,30 @@ class User(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = ['name']
 
 
+# +++ ADD THIS NEW MODEL AT THE END OF THE FILE +++
+class ContactSubmission(models.Model):
+    """
+    Model to store messages submitted through the contact form.
+    """
+    first_name = models.CharField(max_length=50)
+    last_name = models.CharField(max_length=50)
+    email = models.EmailField()
+    message = models.TextField()
+    submitted_at = models.DateTimeField(auto_now_add=True)
+    
+    # Optional: Link to a user if they were logged in when submitting
+    user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL, # If the user is deleted, keep the message but remove the link
+        null=True,
+        blank=True,
+        related_name='contact_submissions'
+    )
+
+    def __str__(self):
+        return f"Message from {self.first_name} {self.last_name} ({self.email}) on {self.submitted_at.strftime('%Y-%m-%d')}"
+
+    class Meta:
+        verbose_name = "Contact Submission"
+        verbose_name_plural = "Contact Submissions"
+        ordering = ['-submitted_at']

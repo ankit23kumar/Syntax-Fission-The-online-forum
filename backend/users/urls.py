@@ -23,6 +23,8 @@ from .views import (
     
     # --- Other Auth ---
     GoogleAuthView,
+    
+    ContactSubmissionView,
 )
 from rest_framework_simplejwt.views import TokenRefreshView
 
@@ -51,4 +53,7 @@ urlpatterns = [
     
     # Detail view should be last to avoid catching other URL patterns
     path('<int:user_id>/', UserDetailView.as_view(), name='user-detail'),
+    
+     # +++ ADD THIS NEW PATH (a good place is after google-auth) +++
+    path('contact/', ContactSubmissionView.as_view(), name='contact-submit'),
 ]

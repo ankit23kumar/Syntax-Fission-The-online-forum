@@ -48,10 +48,7 @@ const Dashboard = () => {
 
   return (
     <>
-      <Navbar/>
       <div className="container-fluid p-0 d-flex">
-        {/* Sidebar */}
-        <Sidebar />
 
         {/* Main Content */}
         <div className="dashboard-container container mt-4">
@@ -84,7 +81,6 @@ const Dashboard = () => {
           {renderContent()}
         </div>
       </div>
-      <Footer />
     </>
   );
 };

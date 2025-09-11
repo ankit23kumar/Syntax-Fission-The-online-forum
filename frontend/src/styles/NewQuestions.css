@@ -1,33 +1,62 @@
-/* --- Container Layout --- */
-.questions-page {
+/* src/styles/NewQuestions.css */
+
+/* --- Page Layout --- */
+.questions-page-container {
   padding: 2rem;
-  background-color: #fff;
+  background-color: #ffffff;
+  width: 100%;
 }
 
-.questions-page h2 {
-  font-size: 2rem;
-  font-weight: 700;
+.questions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 1rem;
   margin-bottom: 1.5rem;
 }
 
-/* --- Switch Filter Tabs --- */
+.questions-header h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.ask-question-btn {
+  background-color: #29c1e2;
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1.2rem;
+  transition: all 0.3s ease;
+}
+
+.ask-question-btn:hover {
+  background-color: #1cafcf;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(41, 193, 226, 0.2);
+}
+
+
+/* --- FilterSwitch remains unchanged, but these styles apply to it --- */
 .switch-btn-group {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   flex-wrap: wrap;
   margin-bottom: 1.5rem;
 }
 
 .switch-btn {
-  padding: 8px 16px;
-  font-size: 0.95rem;
+  padding: 6px 14px;
+  font-size: 0.9rem;
   font-weight: 500;
-  color: #333;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  border-radius: 30px;
+  color: #555;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 20px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .switch-btn:hover {
@@ -39,138 +68,136 @@
   background-color: #29c1e2;
   color: #fff;
   border-color: #29c1e2;
+  font-weight: 600;
 }
 
-/* --- Ask Question Button --- */
-.ask-question-btn {
-  background-color: #29c1e2;
-  color: #fff;
-  font-weight: 500;
-  border: none;
-  border-radius: 30px;
-  padding: 10px 20px;
-  transition: background-color 0.3s ease;
-}
 
-.ask-question-btn:hover {
-  background-color: #1cafcf;
-}
-
-/* --- Question Card Layout --- */
+/* --- NEW Question Card Layout --- */
 .question-card {
   display: flex;
-  justify-content: space-between;
-  border-top: 1px solid #eee;
-  padding: 1rem 0;
-  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid #f0f0f0;
 }
 
-.question-left {
-  flex: 1;
-  min-width: 60%;
-}
-
-.question-right {
+.question-stats {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  justify-content: center;
-  min-width: 200px;
-}
-
-/* --- Stats (Votes, Answers, Views) --- */
-.question-stats {
-  display: flex;
-  gap: 20px;
+  gap: 0.5rem;
+  color: #6c757d;
+  flex-shrink: 0;
+  width: 80px;
   font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 0.5rem;
 }
-
-/* --- Title & Description --- */
-.question-title {
+.stat-item {
+  text-align: right;
+}
+.stat-item strong {
+  display: block;
   font-size: 1.1rem;
   font-weight: 600;
-  color: #0077cc;
+  color: #212529;
+}
+.stat-item.answered {
+  border: 1px solid #28a745;
+  color: #28a745;
+  border-radius: 4px;
+  padding: 0.2rem 0.5rem;
+}
+.stat-item.answered strong {
+  color: #28a745;
+}
+
+.question-summary {
+  flex-grow: 1;
+  min-width: 0; /* Important for flexbox text wrapping */
+}
+
+.question-title {
+  margin-bottom: 0.5rem;
+}
+.question-title a {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #007bff;
   text-decoration: none;
+  transition: color 0.2s ease;
+}
+.question-title a:hover {
+  color: #0056b3;
 }
 
-.question-title:hover {
-  text-decoration: underline;
-  color: #004e9a;
-}
-
-.question-description {
+.question-excerpt {
   font-size: 0.95rem;
-  color: #555;
-  margin: 0.5rem 0;
+  color: #495057;
+  margin-bottom: 1rem;
+  /* Prevent long words from breaking layout */
+  word-wrap: break-word;
+}
+.question-excerpt p {
+  margin: 0;
+  display: inline;
 }
 
-/* --- Tags --- */
-.tag-list {
+.question-meta {
   display: flex;
   flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.tag-list {
+  display: flex;
   gap: 0.5rem;
-  margin-top: 0.5rem;
+  flex-wrap: wrap;
 }
-
 .tag {
-  background-color: #f0f4f8;
-  color: #0077cc;
-  font-size: 0.85rem;
+  background-color: #e9f5ff;
+  color: #007bff;
+  font-size: 0.8rem;
   padding: 4px 10px;
-  border-radius: 20px;
-  border: 1px solid #d1e3f0;
-  cursor: pointer;
+  border-radius: 4px;
 }
 
-/* --- Author Info --- */
 .author-info {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.5rem;
   font-size: 0.85rem;
-  color: #444;
+  color: #6c757d;
+  white-space: nowrap;
 }
-
 .author-avatar {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background-color: #ddd;
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 14px;
+}
+.author-name {
+  color: #007bff;
+  font-weight: 500;
 }
 
-/* --- Responsive Design --- */
-@media (max-width: 768px) {
-  .question-card {
-    flex-direction: column;
-  }
 
-  .question-right {
-    align-items: flex-start;
-    margin-top: 1rem;
-  }
-
-  .question-title {
-    font-size: 1rem;
-  }
-
-  .tag {
-    font-size: 0.75rem;
-    padding: 4px 8px;
-  }
-
-  .ask-question-btn {
-    width: 100%;
-    text-align: center;
-  }
-
-  .switch-btn {
-    font-size: 0.85rem;
-    padding: 6px 14px;
-  }
+/* --- NEW Skeleton Loader Styles --- */
+.skeleton {
+  pointer-events: none;
 }
+.skeleton-line {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite linear;
+  border-radius: 4px;
+  height: 16px;
+}
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.w-50 { width: 50%; }
+.w-75 { width: 75%; }
+.w-100 { width: 100%; }
+.w-25 { width: 25%; }
+.mb-3 { margin-bottom: 1rem; }
+.mt-3 { margin-top: 1rem; }

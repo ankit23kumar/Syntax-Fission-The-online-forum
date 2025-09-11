@@ -1,6 +1,6 @@
 #users/serializers.py
 from rest_framework import serializers
-from .models import User
+from .models import User , ContactSubmission
 from django.contrib.auth import authenticate
 
 class UserSerializer(serializers.ModelSerializer):
@@ -57,3 +57,9 @@ class PasswordUpdateSerializer(serializers.Serializer):
         if data['password'] != data['confirm_password']:
             raise serializers.ValidationError("Passwords do not match.")
         return data
+
+
+class ContactSubmissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContactSubmission
+        fields = ['first_name', 'last_name', 'email', 'message']

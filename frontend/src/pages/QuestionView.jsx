@@ -158,9 +158,7 @@ const QuestionView = () => {
 
   return (
     <>
-      <Navbar />
       <div className="question-view-page d-flex">
-        <Sidebar />
         <main className="flex-grow-1 p-4">
           {/* Question Section */}
           <div className="bg-white p-4 rounded shadow-sm mb-4">
@@ -355,8 +353,6 @@ const QuestionView = () => {
           </div>
         </div>
       )}
-
-      <Footer />
     </>
   );
 };

@@ -1,0 +1,6 @@
+/* Add this to your main App.css or index.css */
+
+body {
+  /* This adds padding to the top of the whole page, equal to the navbar's height */
+  padding-top: 100px; /* Adjust this value if your navbar height changes */
+}

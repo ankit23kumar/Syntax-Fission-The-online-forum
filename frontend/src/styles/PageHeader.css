@@ -1,0 +1,23 @@
+/* src/styles/PageHeader.css */
+
+.page-header-container {
+  padding: 4rem 0;
+}
+
+.page-header {
+  padding-bottom: 3rem;
+  border-bottom: 1px solid #dee2e6; /* A subtle separator line */
+  margin-bottom: 4rem;
+}
+
+.page-header .display-4 {
+  font-weight: 700;
+  color: #212529; /* Bootstrap's default dark color */
+}
+
+.page-header .fs-5 {
+  color: #6c757d; /* Bootstrap's text-muted color */
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}

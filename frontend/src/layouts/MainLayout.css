@@ -1,0 +1,15 @@
+/* src/layouts/MainLayout.css */
+
+.main-layout-container {
+  display: flex;
+  /* This pushes the content below the 80px fixed navbar */
+  padding-top: 80px; 
+  min-height: 100vh;
+}
+
+.main-content {
+  flex-grow: 1;
+  /* Add padding for pages that have it, like NewQuestions */
+  padding: 1.5rem; 
+  background-color: #f8f9fa; /* A light background for content pages */
+}

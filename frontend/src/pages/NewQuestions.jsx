@@ -1,11 +1,78 @@
+// src/pages/NewQuestions.jsx
+
 import React, { useEffect, useState } from "react";
-import Navbar from "../components/Navbar";
-import Sidebar from "../components/Sidebar";
-import Footer from "../components/Footer";
-import FilterSwitch from "../components/FilterSwitch";
-import { getAllQuestions } from "../services/qaService";
-import "../styles/NewQuestions.css";
 import { Link, useSearchParams } from "react-router-dom";
+import { getAllQuestions } from "../services/qaService";
+import FilterSwitch from "../components/FilterSwitch";
+import DOMPurify from 'dompurify'; // <-- Import DOMPurify for security
+import "../styles/NewQuestions.css"; // We will rewrite this file
+
+const QuestionItem = ({ question }) => {
+  // Sanitize the HTML content before rendering
+  const sanitizedContent = DOMPurify.sanitize(question.content);
+
+  return (
+    <div className="question-card">
+      <div className="question-stats">
+        <div className="stat-item">
+          <strong>{question.upvotes - question.downvotes}</strong>
+          <span>votes</span>
+        </div>
+        <div className={`stat-item ${question.answer_count > 0 ? 'answered' : ''}`}>
+          <strong>{question.answer_count}</strong>
+          <span>answers</span>
+        </div>
+        <div className="stat-item">
+          <strong>{question.view_count || 0}</strong>
+          <span>views</span>
+        </div>
+      </div>
+      <div className="question-summary">
+        <h4 className="question-title">
+          <Link to={`/questions/${question.question_id}`}>{question.title}</Link>
+        </h4>
+        <div
+          className="question-excerpt"
+          dangerouslySetInnerHTML={{ __html: sanitizedContent.substring(0, 150) + '...' }}
+        />
+        <div className="question-meta">
+          <div className="tag-list">
+            {question.tags.map((tag) => (
+              <span key={tag.tag_id} className="tag">{tag.tag_name}</span>
+            ))}
+          </div>
+          <div className="author-info">
+            <img
+              src={question.user.profile_picture || "https://cdn-icons-png.flaticon.com/512/847/847969.png"}
+              alt={question.user.name}
+              className="author-avatar"
+            />
+            <span className="author-name">{question.user.name}</span>
+            <span className="timestamp">
+              asked {new Date(question.created_at).toLocaleDateString()}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const SkeletonLoader = () => (
+  <div className="question-card skeleton">
+    <div className="question-stats">
+      <div className="stat-item"><div className="skeleton-line w-50"></div></div>
+      <div className="stat-item"><div className="skeleton-line w-50"></div></div>
+      <div className="stat-item"><div className="skeleton-line w-50"></div></div>
+    </div>
+    <div className="question-summary">
+      <div className="skeleton-line w-75 mb-3" style={{ height: '24px' }}></div>
+      <div className="skeleton-line w-100"></div>
+      <div className="skeleton-line w-100"></div>
+      <div className="skeleton-line w-25 mt-3"></div>
+    </div>
+  </div>
+);
 
 const NewQuestions = () => {
   const [questions, setQuestions] = useState([]);
@@ -18,13 +85,12 @@ const NewQuestions = () => {
     const fetchQuestions = async () => {
       try {
         setLoading(true);
-        const res = await getAllQuestions({ filter, tags }); // pass filter to service
+        // Simulate a slightly longer load time to see the skeleton
+        await new Promise(resolve => setTimeout(resolve, 500)); 
+        const res = await getAllQuestions({ filter, tags });
         setQuestions(res.data);
       } catch (err) {
-        console.error(
-          "Error fetching questions:",
-          err.response?.data || err.message
-        );
+        console.error("Error fetching questions:", err.response?.data || err.message);
       } finally {
         setLoading(false);
       }
@@ -34,81 +100,34 @@ const NewQuestions = () => {
   }, [filter, tags]);
 
   return (
-    <>
-      <Navbar />
-      <div className="container-fluid p-0 d-flex">
-        <Sidebar />
-        <main className="flex-grow-1 p-4">
-          <div className="d-flex justify-content-between align-items-center mb-3">
-            <h3 className="fw-bold">New Questions</h3>
-            <Link to="/ask-question">
-              <button className="btn btn-info text-white">Ask Question</button>
-            </Link>
-          </div>
-
-          <FilterSwitch />
-
-          {loading ? (
-            <p>Loading questions...</p>
-          ) : (
-            <div className="question-list">
-              {questions.map((question) => (
-                <div key={question.question_id} className="border-bottom py-3">
-                  <div className="d-flex align-items-center justify-content-between mb-1">
-                    <div className="d-flex gap-4 small text-muted">
-                      <div>{question.upvotes - question.downvotes} Votes</div>
-                      <div>{question.answer_count} Answer</div>
-                      <div>00 Views</div> {/* Placeholder for now */}
-                    </div>
-                  </div>
-                  <h5 className="text-primary fw-bold mb-1">
-                    <Link
-                      to={`/questions/${question.question_id}`}
-                      className="text-decoration-none text-primary"
-                    >
-                      {question.title}
-                    </Link>
-                  </h5>
-                  <p className="mb-2 small text-muted">
-                    {question.content.slice(0, 100)}...
-                  </p>
-                  <div className="d-flex align-items-center justify-content-between">
-                    <div className="d-flex gap-2 flex-wrap">
-                      {question.tags.map((tag, idx) => (
-                        <span
-                          key={idx}
-                          className="badge bg-light text-dark border"
-                        >
-                          {tag.tag_name}
-                        </span>
-                      ))}
-                    </div>
-                    <div className="d-flex align-items-center gap-2 text-muted">
-                      <img
-                        src={
-                          question.user.profile_picture ||
-                          "https://cdn-icons-png.flaticon.com/512/847/847969.png"
-                        }
-                        alt="user"
-                        width={25}
-                        height={25}
-                        className="rounded-circle"
-                      />
-                      <span>{question.user.name}</span>
-                      <small>
-                        asked{" "}
-                        {new Date(question.created_at).toLocaleDateString()}
-                      </small>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </main>
+    <div className="questions-page-container">
+      <div className="questions-header">
+        <h2 className="fw-bold">All Questions</h2>
+        <Link to="/ask-question">
+          <button className="btn ask-question-btn">Ask Question</button>
+        </Link>
       </div>
-      <Footer/>
-    </>
+
+      <FilterSwitch />
+
+      <div className="question-list-container">
+        {loading ? (
+          <>
+            <SkeletonLoader />
+            <SkeletonLoader />
+            <SkeletonLoader />
+          </>
+        ) : questions.length > 0 ? (
+          questions.map((question) => (
+            <QuestionItem key={question.question_id} question={question} />
+          ))
+        ) : (
+          <div className="text-center py-5">
+            <p className="text-muted">No questions found. Be the first to ask!</p>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 

@@ -1,59 +1,80 @@
+// src/components/HeroSection.jsx
+
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext"; //import your custom hook
+import { useAuth } from "../contexts/AuthContext";
 import "./HeroSection.css";
 import heroImg from "../assets/herosection.png";
+import { motion } from "framer-motion";
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.2 } },
+};
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: { y: 0, opacity: 1, transition: { duration: 0.6, ease: "easeOut" } },
+};
+const imageVariants = {
+  hidden: { x: 100, opacity: 0, scale: 0.9 },
+  visible: { x: 0, opacity: 1, scale: 1, transition: { duration: 0.8, ease: "circOut" } },
+};
 
 const HeroSection = () => {
   const navigate = useNavigate();
   const { accessToken } = useAuth();
 
-  const handleGetStarted = () => {
-    if (accessToken) {
-      navigate("/ask-question");
-    } else {
-      navigate("/login");
-    }
-  };
-
-  const handleExplore = () => {
-    navigate("/new-questions");
-  };
+  const handleGetStarted = () => navigate(accessToken ? "/ask-question" : "/login");
+  const handleExplore = () => navigate("/new-questions");
 
   return (
-    <section className="hero-section text-dark d-flex align-items-center">
-      <div className="container">
+    <section className="hero-section">
+      {/* --- NEW: Aura Effect Background Blobs --- */}
+      <div className="auras">
+        <div className="aura-blob pink"></div>
+        <div className="aura-blob yellow"></div>
+        <div className="aura-blob purple"></div>
+      </div>
+      
+      <div className="container hero-content">
         <div className="row align-items-center">
-          {/* Left: Text Content */}
-          <div className="col-md-6 text-center text-md-start">
-            <h1 className="hero-title">Ask. Answer. Evolve.</h1>
-            <h2 className="hero-subtitle">
+          <motion.div
+            className="col-lg-6 text-center text-lg-start"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <motion.h1 variants={itemVariants} className="hero-title">
+              Ask. Answer. Evolve.
+            </motion.h1>
+            <motion.h2 variants={itemVariants} className="hero-subtitle">
               A clean, intelligent Q&A platform for coders, students, and
               communities.
-            </h2>
-            <p className="hero-description">
+            </motion.h2>
+            <motion.p variants={itemVariants} className="hero-description">
               Collaborate, solve problems, and build knowledge — all in one
               fast, responsive, and user-friendly space tailored for technical
               discussions.
-            </p>
-            <div className="mt-4 d-flex flex-wrap justify-content-center justify-content-md-start gap-3">
-              <button className="btn-cta-start" onClick={handleGetStarted}>
+            </motion.p>
+            <motion.div variants={itemVariants} className="hero-cta-group">
+              <motion.button whileHover={{ scale: 1.05, y: -3 }} whileTap={{ scale: 0.95 }}
+                className="btn-cta-start" onClick={handleGetStarted}>
                 Get Started
-              </button>
-              <button className="btn-cta-explore" onClick={handleExplore}>
+              </motion.button>
+              <motion.button whileHover={{ scale: 1.05, y: -3 }} whileTap={{ scale: 0.95 }}
+                className="btn-cta-explore" onClick={handleExplore}>
                 Explore Q & A
-              </button>
-            </div>
-          </div>
-
-          {/* Right: Hero Image */}
-          <div className="col-md-6 text-center mt-4 mt-md-0">
-            <img
-              src={heroImg}
-              alt="Programmer Working"
-              className="img-fluid hero-image"
-            />
-          </div>
+              </motion.button>
+            </motion.div>
+          </motion.div>
+          <motion.div
+            className="col-lg-6 d-none d-lg-block mt-5 mt-lg-0"
+            variants={imageVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <motion.img src={heroImg} alt="Programmer Working" className="img-fluid hero-image"/>
+          </motion.div>
         </div>
       </div>
     </section>

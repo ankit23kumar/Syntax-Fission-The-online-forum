@@ -1,0 +1,49 @@
+{% comment %} templates/emails/contact_confirmation.html {% endcomment %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Message Received</title>
+  </head>
+  <body style="margin:0; padding:0; background-color:#f4f4f4;">
+    <table cellpadding="0" cellspacing="0" width="100%">
+      <tr>
+        <td align="center">
+          <table cellpadding="0" cellspacing="0" width="600" style="background-color:#ffffff; margin:40px auto; border-radius:8px; box-shadow:0 0 8px rgba(0,0,0,0.1); overflow:hidden;">
+            <!-- Header -->
+            <tr style="background-color:#343a40;">
+              <td style="padding:20px; text-align:center;">
+                <h1 style="margin:0; color:#ffffff; font-family:Arial, sans-serif; font-size:24px;">Syntax Fission</h1>
+              </td>
+            </tr>
+
+            <!-- Body -->
+            <tr>
+              <td style="padding:30px; font-family:Arial, sans-serif; color:#495057;">
+                <h2 style="margin-top:0;">Hi {{ user_name }},</h2>
+                <p style="font-size:16px;">
+                  Thank you for reaching out to us! This is an automated confirmation that we have successfully received your message.
+                </p>
+                <p style="font-size:16px;">
+                  Our team will review your inquiry and get back to you as soon as possible.
+                </p>
+
+                <p style="margin-top:30px;">
+                  Best regards,<br />
+                  <strong>— The Syntax Fission Team</strong>
+                </p>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td style="padding:15px; background-color:#f1f1f1; font-size:12px; color:#868e96; text-align:center;">
+                © {{ current_year }} Syntax Fission. All rights reserved.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

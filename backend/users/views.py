@@ -38,7 +38,8 @@ from .serializers import (
     UserSerializer,
     LoginSerializer,
     GoogleAuthSerializer,
-    PasswordUpdateSerializer
+    PasswordUpdateSerializer,
+    ContactSubmissionSerializer
 )
 from questions.models import Question
 from answers.models import Answer
@@ -433,3 +434,60 @@ class CompleteProfileView(APIView):
 
         serializer = UserProfileSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+# +++ ADD THIS NEW VIEW +++
+class ContactSubmissionView(APIView):
+    """
+    Handles submissions from the public contact form.
+    It works for both authenticated and anonymous users.
+    """
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        serializer = ContactSubmissionSerializer(data=request.data)
+        if serializer.is_valid():
+            # Save the submission to the database
+            if request.user.is_authenticated:
+                serializer.save(user=request.user)
+            else:
+                serializer.save()
+
+            submission_data = serializer.validated_data
+            user_email = submission_data['email']
+            user_name = submission_data['first_name']
+            current_year = datetime.now().year
+
+            # --- LOGIC TO SEND CONFIRMATION EMAIL TO THE USER ---
+            try:
+                user_subject = 'We have received your message - Syntax Fission'
+                user_message_html = render_to_string('emails/contact_confirmation.html', {
+                    'user_name': user_name,
+                    'current_year': current_year
+                })
+                
+                email_to_user = EmailMultiAlternatives(
+                    subject=user_subject,
+                    body=f"Hi {user_name}, thank you for contacting us. We will get back to you shortly.", # Plain text fallback
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    to=[user_email],
+                    headers={"Reply-To": settings.EMAIL_REPLY_TO[0]} # Use the admin/support email for replies
+                )
+                email_to_user.attach_alternative(user_message_html, "text/html")
+                email_to_user.send(fail_silently=False)
+            except Exception as e:
+                # Log the error, but don't block the user's success response
+                print(f"Error sending contact confirmation email: {e}")
+            # --- END OF USER CONFIRMATION EMAIL LOGIC ---
+
+
+            # --- (Optional) Logic to send a notification email to yourself ---
+            # This part is unchanged. You can uncomment it to get notified of new messages.
+            # admin_subject = f"New Contact Form Submission from {user_name}"
+            # ... (rest of the admin notification code) ...
+
+
+            return Response({"message": "Thank you for your message! We will get back to you soon."}, status=status.HTTP_201_CREATED)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
