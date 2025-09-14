@@ -1,15 +1,23 @@
 // src/pages/NewQuestions.jsx
 
 import React, { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+// +++ ADDED: Import useNavigate to handle redirection +++
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { getAllQuestions } from "../services/qaService";
 import FilterSwitch from "../components/FilterSwitch";
-import DOMPurify from 'dompurify'; // <-- Import DOMPurify for security
-import "../styles/NewQuestions.css"; // We will rewrite this file
+import DOMPurify from 'dompurify';
+// +++ ADDED: Import useAuth to check the user's login status +++
+import { useAuth } from "../contexts/AuthContext";
+import "../styles/NewQuestions.css";
 
 const QuestionItem = ({ question }) => {
-  // Sanitize the HTML content before rendering
-  const sanitizedContent = DOMPurify.sanitize(question.content);
+  // Function to create a clean text-only preview from HTML
+  const createTextPreview = (html, length) => {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    return (doc.body.textContent || "").substring(0, length) + '...';
+  };
+
+  const textPreview = createTextPreview(question.content, 180);
 
   return (
     <div className="question-card">
@@ -28,17 +36,18 @@ const QuestionItem = ({ question }) => {
         </div>
       </div>
       <div className="question-summary">
-        <h4 className="question-title">
+        <h3 className="question-title">
           <Link to={`/questions/${question.question_id}`}>{question.title}</Link>
-        </h4>
-        <div
-          className="question-excerpt"
-          dangerouslySetInnerHTML={{ __html: sanitizedContent.substring(0, 150) + '...' }}
-        />
+        </h3>
+        <p className="question-excerpt">
+          {textPreview}
+        </p>
         <div className="question-meta">
           <div className="tag-list">
             {question.tags.map((tag) => (
-              <span key={tag.tag_id} className="tag">{tag.tag_name}</span>
+              <Link to={`/new-questions?tags=${tag.tag_name}`} key={tag.tag_id} className="tag">
+                {tag.tag_name}
+              </Link>
             ))}
           </div>
           <div className="author-info">
@@ -47,10 +56,12 @@ const QuestionItem = ({ question }) => {
               alt={question.user.name}
               className="author-avatar"
             />
-            <span className="author-name">{question.user.name}</span>
-            <span className="timestamp">
-              asked {new Date(question.created_at).toLocaleDateString()}
-            </span>
+            <div className="author-details">
+              <span className="author-name">{question.user.name}</span>
+              <span className="timestamp">
+                asked {new Date(question.created_at).toLocaleDateString()}
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -75,6 +86,8 @@ const SkeletonLoader = () => (
 );
 
 const NewQuestions = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchParams] = useSearchParams();
@@ -85,8 +98,6 @@ const NewQuestions = () => {
     const fetchQuestions = async () => {
       try {
         setLoading(true);
-        // Simulate a slightly longer load time to see the skeleton
-        await new Promise(resolve => setTimeout(resolve, 500)); 
         const res = await getAllQuestions({ filter, tags });
         setQuestions(res.data);
       } catch (err) {
@@ -95,17 +106,32 @@ const NewQuestions = () => {
         setLoading(false);
       }
     };
-
     fetchQuestions();
   }, [filter, tags]);
+
+  const handleAskQuestionClick = () => {
+    if (user) {
+      navigate('/ask-question');
+    } else {
+      navigate('/login');
+    }
+  };
 
   return (
     <div className="questions-page-container">
       <div className="questions-header">
-        <h2 className="fw-bold">All Questions</h2>
-        <Link to="/ask-question">
-          <button className="btn ask-question-btn">Ask Question</button>
-        </Link>
+        <div className="d-flex flex-column">
+            <h2 className="fw-bold mb-0">New Questions</h2>
+            {!loading && (
+                <span className="question-count text-muted mt-1">
+                    {questions.length} questions
+                </span>
+            )}
+        </div>
+        {/* --- CORRECTED: Removed the unnecessary <Link> wrapper --- */}
+        <button className="ask-question-btn" onClick={handleAskQuestionClick}>
+          Ask Question
+        </button>
       </div>
 
       <FilterSwitch />
@@ -123,7 +149,7 @@ const NewQuestions = () => {
           ))
         ) : (
           <div className="text-center py-5">
-            <p className="text-muted">No questions found. Be the first to ask!</p>
+            <p className="text-muted fs-5">No questions found matching your criteria.</p>
           </div>
         )}
       </div>

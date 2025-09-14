@@ -1,0 +1,80 @@
+/* src/styles/FeaturesPage.css */
+
+.features-page-wrapper {
+  background-color: #ffffff;
+}
+
+/* --- Top Header Section --- */
+.features-header {
+  padding: 4rem 0;
+  text-align: center;
+  border-bottom: 1px solid #e9ecef; /* The subtle separator line */
+}
+
+.features-header h1 {
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: #212529;
+}
+
+.features-header p {
+  font-size: 1.2rem;
+  color: #6c757d; /* Muted text color */
+  max-width: 600px;
+  margin: 0.5rem auto 0 auto;
+}
+
+/* --- Main Content Section (with cards) --- */
+.features-content-section {
+  padding: 5rem 0;
+  text-align: center;
+  background-color: #f8f9fa; /* Light grey background to stand out */
+}
+
+.section-title-cyan {
+  color: #17a2b8; /* Bootstrap's 'info' color */
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.section-paragraph {
+  color: #6c757d;
+  max-width: 700px;
+  margin: 0 auto 4rem auto; /* More margin at the bottom */
+}
+
+/* --- ENHANCED Card Styling --- */
+.feature-card {
+  background-color: #ffffff;
+  border: none; /* Cleaner look */
+  border-radius: 12px; /* More modern, rounded corners */
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.05);
+  padding: 2.5rem 2rem;
+  height: 100%;
+  text-align: left; /* Align card content to the left */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Icon Styling - using your existing emojis */
+.feature-card .icon {
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+  display: block; /* Ensures it takes its own line */
+}
+
+.feature-card h5 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #343a40;
+  margin-bottom: 0.75rem;
+}
+
+.feature-card p {
+  color: #6c757d;
+  line-height: 1.6;
+}

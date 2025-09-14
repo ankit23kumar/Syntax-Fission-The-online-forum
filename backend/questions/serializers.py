@@ -26,16 +26,19 @@ class QuestionSerializer(serializers.ModelSerializer):
     user = UserMiniSerializer(read_only=True)
     tags = TagSerializer(many=True, read_only=True, source='get_tags')
     answer_count = serializers.SerializerMethodField()
-
+    view_count = serializers.SerializerMethodField()
     class Meta:
         model = Question
         fields = [
             'question_id', 'user', 'title', 'content', 'upvotes', 'downvotes',
-            'category', 'created_at', 'tags', 'answer_count'
+            'category', 'created_at', 'tags', 'answer_count','view_count'
         ]
 
     def get_answer_count(self, obj):
         return obj.answer_set.count()
+    
+    def get_view_count(self, obj):
+        return obj.viewcount_set.count()
 
 class QuestionTitleSerializer(serializers.ModelSerializer):
     class Meta:

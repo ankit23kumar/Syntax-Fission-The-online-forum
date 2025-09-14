@@ -1,24 +1,109 @@
 /* src/styles/AskQuestion.css */
 
-.ask-question-page {
-  min-height: 100vh;
-  background-color: #f8f9fa;
+/* --- Page Layout --- */
+.ask-question-page .flex-grow-1 {
+  /* This ensures the main content area has some breathing room */
+  padding: 2rem !important; 
 }
 
+/* --- Main Title --- */
+.ask-question-page h2 {
+  font-size: 1.75rem;
+  font-weight: 600; /* Bolder for emphasis */
+  color: #212529;
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 1rem;
+  margin-bottom: 2rem;
+}
+
+/* --- Form Wrapper --- */
 .question-form {
-  max-width: 1080px;
+  background-color: #ffffff;
+  padding: 2rem;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
 }
 
+/* --- Form Labels --- */
+.question-form .form-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #343a40;
+  margin-bottom: 0.5rem;
+}
+
+.question-form .form-label .text-danger {
+  margin-left: 4px;
+}
+
+/* --- Form Inputs (Title & Tags) --- */
 .question-form .form-control {
   border-radius: 6px;
   font-size: 1rem;
+  padding: 0.75rem 1rem;
+  background-color: #f8f9fa; /* Light background for inputs */
+  border: 1px solid #ced4da;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.question-form textarea {
-  resize: vertical;
+.question-form .form-control:focus {
+  background-color: #ffffff;
+  border-color: #86b7fe; /* Bootstrap's default focus blue */
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* --- Quill Editor Wrapper --- */
+/* We remove the default Bootstrap padding and borders from the wrapper div */
+.question-form .form-control.p-0 {
+  padding: 0 !important;
+  border: none;
+  background-color: transparent;
+  min-height: auto; /* Let Quill control the height */
+}
+
+/* --- Tag Helper Text --- */
+.question-form .form-text {
+  font-size: 0.85rem;
+  color: #6c757d;
+  margin-top: 0.5rem;
+}
+
+/* --- Action Buttons --- */
+.btn-info {
+  /* Overriding Bootstrap's default blue */
+  background-color: #29c1e2 !important;
+  border-color: #29c1e2 !important;
+  font-weight: 600;
+  padding: 0.6rem 1.5rem;
   border-radius: 6px;
+  min-width: 150px;
+  transition: all 0.2s ease;
+}
+.btn-info:hover {
+  background-color: #1cafcf !important;
+  border-color: #1cafcf !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(41, 193, 226, 0.2);
+}
+.btn-info:disabled {
+  background-color: #29c1e2 !important;
+  border-color: #29c1e2 !important;
 }
 
-.question-form .btn {
-  min-width: 140px;
+.btn-warning {
+  /* Overriding Bootstrap's default yellow */
+  background-color: #ffc857 !important;
+  border-color: #ffc857 !important;
+  color: #1f1f1f !important;
+  font-weight: 600;
+  padding: 0.6rem 1.5rem;
+  border-radius: 6px;
+  min-width: 150px;
+  transition: all 0.2s ease;
+}
+.btn-warning:hover {
+  background-color: #e6b03f !important;
+  border-color: #e6b03f !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 200, 87, 0.2);
 }

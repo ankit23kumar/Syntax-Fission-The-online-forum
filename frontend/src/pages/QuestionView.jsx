@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import Sidebar from "../components/Sidebar";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import QuillEditor from "../components/QuillEditor";
 import VoteButtons from "../components/VoteButtons";
 import { FaEdit, FaTrash } from "react-icons/fa";

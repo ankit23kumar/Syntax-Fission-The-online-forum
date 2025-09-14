@@ -8,71 +8,60 @@ const QuillEditor = ({
   onChange,
   placeholder = "Write your content here...",
 }) => {
-  const editorContainerRef = useRef(null);
-  const quillRef = useRef(null);
+  const wrapperRef = useRef(null);
+  const quillInstanceRef = useRef(null);
 
   useEffect(() => {
-    const container = editorContainerRef.current;
-    if (!container) return;
+    // Check if the wrapper ref is available
+    if (!wrapperRef.current) return;
 
-    // 🧼 Full cleanup before initializing
-    container.innerHTML = "";
+    // We only want to initialize Quill once
+    if (!quillInstanceRef.current) {
+      const editorContainer = document.createElement("div");
+      wrapperRef.current.append(editorContainer);
 
-    const quillInstance = new Quill(container, {
-      theme: "snow",
-      placeholder,
-      modules: {
-        toolbar: [
-          [{ header: [1, 2, false] }],
-          ["bold", "italic", "underline", "strike"],
-          [{ list: "ordered" }, { list: "bullet" }],
-          ["link", "blockquote", "code-block"],
-          ["clean"],
-        ],
-      },
-    });
+      const quill = new Quill(editorContainer, {
+        theme: "snow",
+        placeholder,
+        modules: {
+          toolbar: [
+            [{ header: [1, 2, 3, false] }],
+            ["bold", "italic", "underline", "strike"],
+            [{ list: "ordered" }, { list: "bullet" }],
+            ["link", "blockquote", "code-block"],
+            ["clean"],
+          ],
+        },
+      });
 
-    // Set initial content if provided
-    if (value) {
-      quillInstance.root.innerHTML = value;
+      quillInstanceRef.current = quill;
+
+      if (value) {
+        quill.clipboard.dangerouslyPasteHTML(value);
+      }
+
+      const handleChange = () => {
+        const html = quill.root.innerHTML;
+        onChange(html === '<p><br></p>' ? '' : html);
+      };
+      quill.on("text-change", handleChange);
     }
+  }, []);
 
-    // Handle content changes
-    const handleTextChange = () => {
-      const html = quillInstance.root.innerHTML;
-      onChange(html);
-    };
-
-    quillInstance.on("text-change", handleTextChange);
-
-    // Store ref for cleanup
-    quillRef.current = quillInstance;
-
-    return () => {
-      if (quillRef.current) {
-        quillRef.current.off("text-change", handleTextChange);
-
-        // THE FIX: Destroy Quill instance to prevent toolbar duplication
-        if (typeof quillRef.current.destroy === "function") {
-          quillRef.current.destroy(); //Quill 2.x cleanup
-        }
-
-        quillRef.current = null;
+  // Update effect to handle the value prop changing
+  useEffect(() => {
+    const quill = quillInstanceRef.current;
+    if (quill && quill.root.innerHTML !== value) {
+      if (value) {
+        quill.clipboard.dangerouslyPasteHTML(value);
+      } else {
+        quill.setText('');
       }
-
-      // Final DOM cleanup
-      if (editorContainerRef.current) {
-        editorContainerRef.current.innerHTML = "";
-      }
-    };
-  }, [placeholder]);
+    }
+  }, [value]);
 
   return (
-    <div className="quill-editor-wrapper">
-      <div className="quill-editor-container">
-        <div ref={editorContainerRef} />
-      </div>
-    </div>
+    <div className="quill-editor-wrapper" ref={wrapperRef} />
   );
 };
 

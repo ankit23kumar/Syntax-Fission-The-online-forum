@@ -1,16 +1,43 @@
 /* styles/QuillEditor.css */
+
+/* --- Main Wrapper --- */
+/* This is the container that React controls. We give it a unified border. */
 .quill-editor-wrapper {
-  background-color: #fff;
+  background-color: #f5f5f5;
   border-radius: 6px;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-  margin-bottom: 1rem;
+  border: 1px solid #ced4da;
+  overflow: hidden; /* Ensures inner corners are clipped */
+  display: flex;
+  flex-direction: column;
 }
 
+/* --- Quill Toolbar Styling --- */
+/* This targets the toolbar that Quill generates inside our wrapper. */
 .quill-editor-wrapper .ql-toolbar {
-  border-radius: 4px 4px 0 0;
+  /* Remove individual borders from the toolbar */
+  border: none;
+  border-bottom: 1px solid #e0e0e0; /* The clean separator line */
+  background-color: #fafbfd; /* Light grey toolbar background */
 }
 
+/* --- Quill Editor Area Styling --- */
+/* This targets the main content area Quill generates. */
 .quill-editor-wrapper .ql-container {
-  border-radius: 0 0 4px 4px;
+  /* Remove individual border from the container */
+  border: none;
+  flex-grow: 1; /* Allows the editor to fill available space */
+  font-size: 1rem;
+}
+
+/* This targets the actual editable text area. */
+.quill-editor-wrapper .ql-editor {
   min-height: 200px;
+  padding: 12px;
+}
+
+/* --- Placeholder Text Styling --- */
+.quill-editor-wrapper .ql-editor.ql-blank::before {
+    color: #6c757d; /* Standard placeholder color */
+    font-style: normal; /* Remove italics from placeholder */
+    font-size: 1rem;
 }
