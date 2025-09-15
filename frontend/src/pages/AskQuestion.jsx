@@ -1,60 +1,58 @@
+// src/pages/AskQuestion.jsx
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Sidebar from "../components/Sidebar";
-import { askQuestion, createOrGetTag } from "../services/qaService";
-import "../styles/AskQuestion.css";
+import { useToast } from "../contexts/ToastContext"; // Using toast for better feedback
+import { askQuestion } from "../services/qaService"; // Using the single, correct service function
 import QuillEditor from "../components/QuillEditor";
+import "../styles/AskQuestion.css"; // Your beautiful CSS is unchanged
 
 const AskQuestion = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [tags, setTags] = useState("");
+  const [tags, setTags] = useState(""); // The string input from the user
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // Basic validation
+    if (!title.trim() || !content.trim() || content === '<p><br></p>') {
+      showToast("Title and content are required.", "warning");
+      return;
+    }
     setLoading(true);
 
-    const tagList = tags
-      .trim()
-      .split(/[\s#]+/)
-      .filter((tag) => tag.length > 0);
-
     try {
-      const tagIDs = await Promise.all(
-        tagList.map(async (tag) => {
-          try {
-            const res = await createOrGetTag(tag);
-            return res.data.tag_id;
-          } catch (err) {
-            console.warn(
-              `Failed to create or fetch tag "${tag}"`,
-              err.response?.data || err.message
-            );
-            return null;
-          }
-        })
-      );
+      // 1. Parse the tags string into a clean array of tag names.
+      // This regex is robust and handles spaces, commas, and hashtags as separators.
+      const parsedTagNames = tags.trim().split(/[\s,;#]+/).filter(Boolean);
 
-      const validTags = tagIDs.filter(Boolean);
-
+      if (parsedTagNames.length === 0) {
+        showToast("Please provide at least one tag.", "warning");
+        setLoading(false);
+        return;
+      }
+      
+      // 2. Create the single, clean data payload for the backend.
+      // The `tag_names` key matches the `write_only` field in your Django serializer.
       const payload = {
         title,
         content,
-        tag_id: validTags,
+        tag_names: parsedTagNames,
       };
 
+      // 3. Make ONE efficient API call.
       const res = await askQuestion(payload);
-      console.log("Question posted:", res.data);
 
-      navigate(`/questions/${res.data.question_id}`); // redirect to newly created question
+      showToast("Question posted successfully!", "success");
+      // 4. Redirect to the newly created question's page.
+      navigate(`/questions/${res.data.question_id}`);
+
     } catch (error) {
-      console.error(
-        "Error posting question:",
-        error.response?.data || error.message
-      );
-      alert("Something went wrong. Please try again.");
+      console.error("Error posting question:", error.response?.data || error.message);
+      showToast(error.response?.data?.detail || "Something went wrong. Please try again.", "danger");
     } finally {
       setLoading(false);
     }
@@ -68,7 +66,6 @@ const AskQuestion = () => {
 
   return (
     <div className="ask-question-page d-flex">
-
       <main className="flex-grow-1 p-4">
         <h2 className="fw-bold">Ask a Public Question</h2>
 
@@ -92,20 +89,6 @@ const AskQuestion = () => {
             />
           </div>
 
-          {/* Content
-          <div className="mb-4">
-            <label className="form-label fw-semibold">
-              Content<span className="text-danger">*</span>
-            </label>
-            <textarea
-              rows="8"
-              placeholder="Explain your question clearly and concisely..."
-              className="form-control"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              required
-            />
-          </div> */}
           {/* Content */}
           <div className="mb-4">
             <label className="form-label fw-semibold">
@@ -130,8 +113,7 @@ const AskQuestion = () => {
               required
             />
             <div className="form-text">
-              Separate tags with space or `#` — for example: `#html css
-              javascript`
+              Separate tags with space or `#` — for example: `html css javascript`
             </div>
           </div>
 

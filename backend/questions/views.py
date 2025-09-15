@@ -1,5 +1,7 @@
 from rest_framework import generics, permissions
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.response import Response
+from rest_framework import status
 from .models import Question, ViewCount, QuestionTag
 from tags.models import Tag
 from answers.models import Answer
@@ -73,43 +75,125 @@ class QuestionDetailView(generics.RetrieveAPIView):
     permission_classes = [permissions.AllowAny]
     lookup_field = 'question_id'
 
+# class AskQuestionView(generics.CreateAPIView):
+#     serializer_class = QuestionSerializer
+#     permission_classes = [permissions.IsAuthenticated]
+
+#     def perform_create(self, serializer):
+#         tag_names = self.request.data.get('tags', [])  # expects a list of tag names like ["#django", "restapi"]
+#         question = serializer.save(user=self.request.user)
+
+#         for raw_name in tag_names:
+#             clean_name = raw_name.lstrip('#').lower().strip()  # normalize tag
+#             if not clean_name:
+#                 continue  # skip empty names
+
+#             tag, _ = Tag.objects.get_or_create(tag_name=clean_name)
+#             QuestionTag.objects.create(question=question, tag=tag)
+
+# --- THIS IS THE CORRECTED VIEW FOR CREATING QUESTIONS ---
 class AskQuestionView(generics.CreateAPIView):
     serializer_class = QuestionSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    def perform_create(self, serializer):
-        tag_names = self.request.data.get('tags', [])  # expects a list of tag names like ["#django", "restapi"]
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        # 1. Manually extract and remove the tag_names from the validated data
+        tag_names = serializer.validated_data.pop('tag_names', [])
+        
+        # 2. Save the question instance first. The `user` is passed as an extra keyword argument.
         question = serializer.save(user=self.request.user)
+        
+        # 3. Process and associate the tags
+        for name in tag_names:
+            clean_name = name.strip().lower()
+            if clean_name:
+                tag, _ = Tag.objects.get_or_create(tag_name=clean_name)
+                QuestionTag.objects.create(question=question, tag=tag)
 
-        for raw_name in tag_names:
-            clean_name = raw_name.lstrip('#').lower().strip()  # normalize tag
-            if not clean_name:
-                continue  # skip empty names
-
-            tag, _ = Tag.objects.get_or_create(tag_name=clean_name)
-            QuestionTag.objects.create(question=question, tag=tag)
+        # 4. Re-serialize the complete question object to include the newly added tags for the response
+        response_serializer = self.get_serializer(question)
+        return Response(response_serializer.data, status=status.HTTP_201_CREATED)
 
 
+# class UpdateQuestionView(generics.UpdateAPIView):
+#     queryset = Question.objects.all()
+#     serializer_class = QuestionSerializer
+#     permission_classes = [permissions.IsAuthenticated]
+#     lookup_field = 'question_id'
+
+#     def perform_update(self, serializer):
+#         question = self.get_object()
+#         if question.user != self.request.user:
+#             raise PermissionDenied("You do not have permission to update this question.")
+        
+#         serializer.save()
+#         new_tag_ids = self.request.data.get('tag_id', [])
+#         QuestionTag.objects.filter(question=question).delete()
+#         for tag_id in new_tag_ids:
+#             try:
+#                 tag = Tag.objects.get(tag_id=tag_id)
+#                 QuestionTag.objects.create(question=question, tag=tag)
+#             except Tag.DoesNotExist:
+#                 continue
+# --- THIS IS THE REWRITTEN VIEW FOR UPDATING QUESTIONS ---
 class UpdateQuestionView(generics.UpdateAPIView):
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
     permission_classes = [permissions.IsAuthenticated]
     lookup_field = 'question_id'
 
-    def perform_update(self, serializer):
+    def update(self, request, *args, **kwargs):
         question = self.get_object()
-        if question.user != self.request.user:
+
+        # Check permission
+        if question.user != request.user:
             raise PermissionDenied("You do not have permission to update this question.")
-        
-        serializer.save()
-        new_tag_ids = self.request.data.get('tag_id', [])
-        QuestionTag.objects.filter(question=question).delete()
-        for tag_id in new_tag_ids:
-            try:
-                tag = Tag.objects.get(tag_id=tag_id)
+
+        serializer = self.get_serializer(question, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+
+        # 1. Save the main question fields (title, content, etc.)
+        self.perform_update(serializer)
+
+        # 2. Handle tag updates explicitly
+        new_tag_names = serializer.validated_data.get('tag_names')
+
+        # This block will only run if the 'tag_names' field was included in the request
+        if new_tag_names is not None:
+            # Get the names of the tags currently associated with the question
+            current_tags = question.questiontag_set.all()
+            current_tag_names = {tag.tag.tag_name for tag in current_tags}
+
+            # Convert new tag names to a clean set
+            clean_new_tag_names = {name.strip().lower() for name in new_tag_names if name.strip()}
+            
+            # --- Efficiently calculate the difference ---
+            # Tags to add = new tags that are not in the current set
+            tags_to_add = clean_new_tag_names - current_tag_names
+            # Tags to remove = current tags that are not in the new set
+            tags_to_remove = current_tag_names - clean_new_tag_names
+
+            # Remove the old tag relationships
+            if tags_to_remove:
+                QuestionTag.objects.filter(
+                    question=question,
+                    tag__tag_name__in=tags_to_remove
+                ).delete()
+
+            # Add the new tag relationships
+            for name in tags_to_add:
+                tag, _ = Tag.objects.get_or_create(tag_name=name)
                 QuestionTag.objects.create(question=question, tag=tag)
-            except Tag.DoesNotExist:
-                continue
+
+        # Return the complete, updated question data
+        return Response(self.get_serializer(question).data)
+
+    def perform_update(self, serializer):
+        # This is a hook used by .update(), we just need it to save.
+        serializer.save()
 
 class DeleteQuestionView(generics.DestroyAPIView):
     queryset = Question.objects.all()

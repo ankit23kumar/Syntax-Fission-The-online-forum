@@ -3,9 +3,9 @@
 /* --- Main Wrapper --- */
 /* This is the container that React controls. We give it a unified border. */
 .quill-editor-wrapper {
-  background-color: #f5f5f5;
+  background-color: #f6f9fa;
   border-radius: 6px;
-  border: 1px solid #ced4da;
+  border: 1.5px solid #ced4da;
   overflow: hidden; /* Ensures inner corners are clipped */
   display: flex;
   flex-direction: column;
@@ -17,7 +17,7 @@
   /* Remove individual borders from the toolbar */
   border: none;
   border-bottom: 1px solid #e0e0e0; /* The clean separator line */
-  background-color: #fafbfd; /* Light grey toolbar background */
+  background-color: #e3e9ff; /* Light grey toolbar background */
 }
 
 /* --- Quill Editor Area Styling --- */

@@ -63,10 +63,6 @@ export const createOrGetTag = (tag_name) =>
   axiosInstance.post("/tags/", { tag_name });
 
 // === Votes ===
-// export const submitVote = (payload) => {
-//   return axiosInstance.post('/votes/', payload); 
-// };
-
 export const submitVote = async ({ target_type, target_id, vote_type }) => {
   return axiosInstance.post("/votes/", {
     target_type,

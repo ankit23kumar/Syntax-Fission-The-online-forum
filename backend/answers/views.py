@@ -41,6 +41,12 @@ class AnswerDetailView(RetrieveUpdateDestroyAPIView):
     lookup_url_kwarg = 'answer_id'
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
+    def perform_update(self, serializer):
+        answer = self.get_object()
+        if answer.user != self.request.user:
+            raise PermissionDenied("You do not have permission to edit this answer.")
+        serializer.save()
+        
     def perform_destroy(self, instance):
         if instance.user != self.request.user:
             raise PermissionDenied("You do not have permission to delete this answer.")
