@@ -1,0 +1,48 @@
+/* src/styles/AdminQuestions.css */
+
+/* We can reuse some of the core styles from AdminUsers.css for consistency */
+@import url('./AdminUsers.css'); 
+
+/* --- Table Specific Styles --- */
+.admin-table th:first-child,
+.admin-table td:first-child {
+  width: 5%; /* Smaller width for ID column */
+}
+.admin-table th:last-child,
+.admin-table td:last-child {
+  width: 10%; /* Fixed width for Actions column */
+  text-align: right;
+}
+
+.admin-table td:last-child {
+  padding-right: 2rem;
+}
+
+/* Author Info Styles (similar to AdminUsers) */
+.author-info-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.author-info-cell img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.author-info-cell span {
+  font-weight: 500;
+  color: #343a40;
+}
+
+/* Question Title Style */
+.question-title-link {
+  font-weight: 600;
+  color: #0077cc;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.question-title-link:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}

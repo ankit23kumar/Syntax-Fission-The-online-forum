@@ -1,0 +1,35 @@
+/* src/styles/AdminVotes.css */
+
+/* Reuse the consistent container and header styles */
+@import url('./AdminUsers.css'); 
+
+/* --- Table Specific Styles --- */
+.vote-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.vote-type-badge.upvote {
+  background-color: #e3f9e7;
+  color: #28a745;
+}
+.vote-type-badge.downvote {
+  background-color: #f8d7da;
+  color: #dc3545;
+}
+
+.question-title-link {
+  font-weight: 500;
+  color: #0077cc;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.question-title-link:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}

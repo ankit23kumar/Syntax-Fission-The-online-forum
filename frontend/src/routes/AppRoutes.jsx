@@ -1,12 +1,11 @@
 // src/routes/AppRoutes.jsx
 
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Outlet  } from "react-router-dom";
 
 // --- Import Layouts ---
 import MainLayout from "../layouts/MainLayout";
-import AdminLayout from "../pages/AdminLayout"; // Your existing AdminLayout
-
+import AdminProfile from '../pages/AdminProfile';
 // --- Import Page Components ---
 import Home from "../pages/Home";
 import Login from "../pages/Login";
@@ -59,20 +58,20 @@ const AppRoutes = () => {
       <Route path="/contact" element={withLayout(ContactPage)} />
       <Route path="/about" element={withLayout(AboutPage)} />
       <Route path="/features" element={withLayout(FeaturesPage)} />
-      {/* --- Admin-only Routes --- */}
+       {/* --- Admin-only Routes --- */}
       <Route
         path="/admin"
         element={
           <RequireAdmin>
-            {/* The MainLayout wraps the entire Admin section */}
             <MainLayout>
-              <AdminLayout />
+              <Outlet />
             </MainLayout>
           </RequireAdmin>
         }
       >
-        <Route index element={<AdminDashboard />} /> {/* Use index for the base path */}
+        <Route index element={<AdminDashboard />} />
         <Route path="dashboard" element={<AdminDashboard />} />
+        <Route path="profile/*" element={<AdminProfile />} /> 
         <Route path="users" element={<AdminUsers />} />
         <Route path="questions" element={<AdminQuestions />} />
         <Route path="tags" element={<AdminTags />} />
@@ -80,7 +79,6 @@ const AppRoutes = () => {
         <Route path="answers" element={<AdminAnswers />} />
         <Route path="votes" element={<AdminVotes />} />
       </Route>
-
       {/* --- Error Routes --- */}
       <Route path="/403" element={withLayout(Forbidden)} />
       <Route path="/unauthorized" element={withLayout(Unauthorized)} />

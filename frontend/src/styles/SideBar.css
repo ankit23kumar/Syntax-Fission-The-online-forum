@@ -1,42 +1,29 @@
 /* src/styles/Sidebar.css */
 
+/* --- Main Sidebar Structure (Unified for both User and Admin) --- */
 .sidebar {
-  width: 240px; /* A bit wider for better spacing */
-  background-color: #ffffff;
-  border-right: 1px solid #e9ecef;
+  width: 240px;
+  background-color: #ffffff; /* Clean white background */
+  border-right: 1px solid #e9ecef; /* Subtle separator */
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   padding: 1.5rem 1rem;
 }
 
-/* --- Header --- */
-.sidebar-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+/* --- Admin Title (Replaces old .sidebar-header) --- */
+.admin-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #343a40;
   padding: 0 0.5rem 1.5rem 0.5rem;
+  margin-bottom: 1rem;
   border-bottom: 1px solid #e9ecef;
 }
 
-.sidebar-logo {
-  height: 40px;
-  width: auto;
-}
-
-.sidebar-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  margin: 0;
-  color: #343a40;
-}
-.sidebar-title .text-info {
-  color: #17a2b8 !important; /* Matches your About/Features pages */
-}
-
-/* --- Navigation --- */
+/* --- Navigation Section (Unified) --- */
 .sidebar-nav {
-  margin-top: 1.5rem;
+  margin-top: 1rem; /* Adjusted margin */
 }
 
 .nav-heading {
@@ -52,12 +39,12 @@
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 0.5rem;
+  gap: 0.85rem; /* Slightly more space */
+  padding: 0.75rem 0.75rem; /* Adjusted padding */
   margin-bottom: 0.25rem;
   font-weight: 500;
   font-size: 1rem;
-  color: #495057;
+  color: #495057; /* Standard text color */
   text-decoration: none;
   border-radius: 6px;
   transition: background-color 0.2s ease, color 0.2s ease;
@@ -69,9 +56,10 @@
 }
 
 /* The .active class is automatically added by NavLink */
+/* This is the beautiful light blue active state from your image */
 .nav-item.active {
-  background-color: #e3f8fa;
-  color: #17a2b8;
+  background-color: #e3f8fa; /* Light cyan background */
+  color: #17a2b8; /* Main cyan color */
   font-weight: 600;
 }
 
@@ -79,14 +67,15 @@
   width: 18px;
   height: 18px;
   flex-shrink: 0;
+  /* Ensure icon color changes with the text */
+  color: inherit;
 }
 
 
-/* --- Topics / Tags Section --- */
+/* --- Topics / Tags Section (Unchanged, for User sidebar) --- */
 .sidebar-topics {
   margin-top: 2rem;
 }
-
 .sidebar-tag {
   display: block;
   width: 100%;
@@ -101,12 +90,10 @@
   cursor: pointer;
   transition: all 0.2s ease;
 }
-
 .sidebar-tag:hover {
   background-color: #f8f9fa;
   color: #212529;
 }
-
 .sidebar-tag.active {
   background-color: #ffffff;
   color: #17a2b8;
@@ -115,7 +102,7 @@
 }
 
 
-/* --- Footer / Logout Button --- */
+/* --- Footer / Logout Button (Unified) --- */
 .sidebar-footer {
   margin-top: auto; /* Pushes the logout button to the bottom */
   padding-top: 1.5rem;
@@ -125,25 +112,20 @@
 .logout-btn {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.85rem;
   width: 100%;
-  padding: 0.75rem 0.5rem;
+  padding: 0.75rem 0.75rem;
   font-size: 1rem;
   font-weight: 500;
-  color: #dc3545; /* Bootstrap danger color */
+  color: #dc3545; /* Bootstrap danger color for logout */
   background-color: transparent;
-  border: none;
+  border: 1px solid transparent; /* Maintain structure */
   border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .logout-btn:hover {
-  background-color: #f8d7da;
+  background-color: #f8d7da; /* Light red on hover */
   color: #721c24;
-}
-
-.logout-btn svg {
-  width: 18px;
-  height: 18px;
 }

@@ -1,90 +1,85 @@
+// src/pages/AdminDashboard.jsx
+
 import React from "react";
-import { FaUsers, FaQuestion, FaTags, FaComment, FaThumbsUp, FaBell } from "react-icons/fa";
-import { useNavigate, Navigate } from "react-router-dom";
+import { FaUsers, FaQuestionCircle, FaTags, FaComment, FaThumbsUp, FaBell, FaUserCircle } from "react-icons/fa"; // Added FaUserCircle
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import { motion } from "framer-motion";
+import '../styles/AdminDashboard.css';
 
 const AdminDashboard = () => {
-  const user = JSON.parse(localStorage.getItem("user"));
+  const { user } = useAuth();
   const navigate = useNavigate();
 
-  if (!user?.is_admin) return <Navigate to="/403" />;
-
   const sections = [
-    {
-      title: "Manage Users",
-      text: "Promote, deactivate or remove users.",
-      icon: <FaUsers size={40} className="text-info" />,
-      border: "border-info",
-      btn: "btn-info",
-      route: "/admin/users",
-    },
-    {
-      title: "Manage Questions",
-      text: "Moderate or delete spam questions.",
-      icon: <FaQuestion size={40} className="text-success" />,
-      border: "border-success",
-      btn: "btn-success",
-      route: "/admin/questions",
-    },
-    {
-      title: "Manage Tags",
-      text: "Create or remove tags to organize content.",
-      icon: <FaTags size={40} className="text-warning" />,
-      border: "border-warning",
-      btn: "btn-warning",
-      route: "/admin/tags",
-    },
-    {
-      title: "Manage Answers",
-      text: "Review and delete inappropriate answers.",
-      icon: <FaComment size={40} className="text-secondary" />,
-      border: "border-secondary",
-      btn: "btn-secondary",
-      route: "/admin/answers",
-    },
-    {
-      title: "Manage Votes",
-      text: "Monitor voting activity on posts.",
-      icon: <FaThumbsUp size={40} className="text-primary" />,
-      border: "border-primary",
-      btn: "btn-primary",
-      route: "/admin/votes",
-    },
-    {
-      title: "Manage Notifications",
-      text: "Audit all system notifications.",
-      icon: <FaBell size={40} className="text-danger" />,
-      border: "border-danger",
-      btn: "btn-danger",
-      route: "/admin/notifications",
-    },
+    { title: "Manage Users", text: "Promote, deactivate or remove users.", icon: <FaUsers />, color: "cyan", route: "/admin/users" },
+    { title: "Manage Questions", text: "Moderate or delete spam questions.", icon: <FaQuestionCircle />, color: "green", route: "/admin/questions" },
+    { title: "Manage Tags", text: "Create or remove tags to organize content.", icon: <FaTags />, color: "yellow", route: "/admin/tags" },
+    { title: "Manage Answers", text: "Review and delete inappropriate answers.", icon: <FaComment />, color: "grey", route: "/admin/answers" },
+    { title: "Manage Votes", text: "Monitor voting activity on posts.", icon: <FaThumbsUp />, color: "blue", route: "/admin/votes" },
+    { title: "Manage Notifications", text: "Audit all system notifications.", icon: <FaBell />, color: "red", route: "/admin/notifications" },
   ];
 
-  return (
-    <div className="container-fluid">
-      <h2 className="fw-bold mb-4">Admin Dashboard</h2>
-      <p className="text-muted">Welcome back, {user.name}</p>
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.05 } },
+  };
+  const cardVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1 },
+  };
 
-      <div className="row mt-4">
-        {sections.map((section, i) => (
-          <div className="col-md-4 mb-4" key={i}>
-            <div className={`card border-start ${section.border} shadow-sm`}>
-              <div className="card-body d-flex justify-content-between align-items-center">
-                <div>
-                  <h5 className="card-title">{section.title}</h5>
-                  <p className="card-text">{section.text}</p>
-                  <button
-                    className={`btn btn-sm ${section.btn} text-white`}
-                    onClick={() => navigate(section.route)}
-                  >
-                    View
-                  </button>
-                </div>
+  return (
+    <div className="admin-dashboard-container">
+      {/* --- UPDATED HEADER SECTION --- */}
+      <motion.div
+        className="dashboard-header"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div>
+          <h2 className="page-title">Admin Dashboard</h2>
+          <p className="page-subtitle">Welcome back, {user?.name || 'Admin'}</p>
+        </div>
+        
+        {/* --- NEW PROFILE BUTTON --- */}
+        <motion.button
+          className="btn-profile"
+          onClick={() => navigate('/admin/profile')}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <FaUserCircle className="me-2" /> View Profile
+        </motion.button>
+      </motion.div>
+
+      <motion.div
+        className="row mt-4"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        {sections.map((section) => (
+          <motion.div className="col-lg-4 col-md-6 mb-4" key={section.title} variants={cardVariants}>
+            <div className={`admin-card color-${section.color}`}>
+              <div className="card-content">
+                <h5 className="card-title">{section.title}</h5>
+                <p className="card-text">{section.text}</p>
+                <button
+                  className="btn-view"
+                  onClick={() => navigate(section.route)}
+                >
+                  View
+                </button>
+              </div>
+              <div className="card-icon">
                 {section.icon}
               </div>
             </div>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     </div>
   );
 };

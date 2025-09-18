@@ -1,354 +1,269 @@
+// src/pages/AdminUsers.jsx
+
 import React, { useEffect, useState } from "react";
 import api from "../services/api";
 import "../styles/AdminUsers.css";
+import { motion, AnimatePresence } from "framer-motion";
+import { FaUserPlus, FaEdit, FaTrash, FaKey, FaToggleOn, FaToggleOff, FaTimes } from "react-icons/fa";
+import { useToast } from "../contexts/ToastContext";
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [editingUserId, setEditingUserId] = useState(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+
+  const { showToast } = useToast();
 
   const [formUser, setFormUser] = useState({
-    name: "",
-    email: "",
-    password: "",
-    bio: "",
-    is_active: true,
-    is_admin: false,
-    profile_picture: null,
+    name: "", email: "", password: "", bio: "",
+    is_active: true, is_admin: false, profile_picture: null,
   });
+  const [passwordReset, setPasswordReset] = useState({ password: "", confirm_password: "" });
 
-  const [passwordReset, setPasswordReset] = useState({
-    password: "",
-    confirm_password: "",
-  });
-
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  useEffect(() => { fetchUsers(); }, []);
 
   const fetchUsers = async () => {
+    setLoading(true);
     try {
       const res = await api.get("/admin/users/");
       setUsers(res.data);
     } catch (err) {
-      console.error("Failed to fetch users", err);
+      showToast("Failed to fetch users.", "danger");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const toggleActive = async (id, isActive) => {
+  const toggleStatus = async (user, field) => {
     try {
-      await api.patch(`/admin/users/${id}/`, { is_active: !isActive });
+      await api.patch(`/admin/users/${user.user_id}/`, { [field]: !user[field] });
       fetchUsers();
+      showToast(`User ${field.replace('is_', '')} status updated.`, "success");
     } catch (err) {
-      console.error("Failed to update user status", err);
+      showToast("Failed to update user status.", "danger");
     }
   };
 
-  const toggleAdmin = async (id, isAdmin) => {
+  const handleDeleteUser = async () => {
     try {
-      await api.patch(`/admin/users/${id}/`, { is_admin: !isAdmin });
+      await api.delete(`/admin/users/${selectedUser.user_id}/delete/`);
       fetchUsers();
+      showToast("User deleted successfully.", "success");
     } catch (err) {
-      console.error("Failed to update user role", err);
+      showToast("Failed to delete user.", "danger");
+    } finally {
+      closeConfirmModal();
     }
-  };
-
-  const deleteUser = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this user?")) return;
-    try {
-      await api.delete(`/admin/users/${id}/delete/`);
-      fetchUsers();
-    } catch (err) {
-      console.error("Failed to delete user", err);
-    }
-  };
-
-  const handleInputChange = (e) => {
-    setFormUser({ ...formUser, [e.target.name]: e.target.value });
-  };
-
-  const handleCheckboxChange = (e) => {
-    setFormUser({ ...formUser, [e.target.name]: e.target.checked });
-  };
-
-  const handleFileChange = (e) => {
-    setFormUser({ ...formUser, profile_picture: e.target.files[0] });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const formData = new FormData();
+    for (let key in formUser) {
+      if (formUser[key] !== null) formData.append(key, formUser[key]);
+    }
+    formData.append("is_staff", formUser.is_admin);
+
     try {
-      const formData = new FormData();
-      for (let key in formUser) {
-        if (formUser[key] !== null && formUser[key] !== undefined) {
-          formData.append(key, formUser[key]);
-        }
-      }
-      formData.append("is_staff", formUser.is_admin);
-
-      if (editingUserId) {
-        await api.patch(`/admin/users/${editingUserId}/`, formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+      if (selectedUser) {
+        await api.patch(`/admin/users/${selectedUser.user_id}/`, formData, { headers: { "Content-Type": "multipart/form-data" } });
+        showToast("User updated successfully!", "success");
       } else {
-        await api.post("/users/register/", formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+        await api.post("/users/create/", formData, { headers: { "Content-Type": "multipart/form-data" } });
+        showToast("User added successfully!", "success");
       }
-
       fetchUsers();
       closeModal();
     } catch (err) {
-      console.error("Failed to submit user form", err);
+      showToast("Failed to submit form.", "danger");
     }
-  };
-
-  const openAddModal = () => {
-    setEditingUserId(null);
-    setFormUser({
-      name: "",
-      email: "",
-      password: "",
-      bio: "",
-      is_active: true,
-      is_admin: false,
-      profile_picture: null,
-    });
-    setShowModal(true);
-  };
-
-  const openEditModal = (user) => {
-    setEditingUserId(user.user_id);
-    setFormUser({
-      name: user.name || "",
-      email: user.email,
-      password: "",
-      bio: user.bio || "",
-      is_active: user.is_active,
-      is_admin: user.is_admin,
-      profile_picture: null,
-    });
-    setShowModal(true);
-  };
-
-  const closeModal = () => {
-    setShowModal(false);
-    setEditingUserId(null);
-  };
-
-  const openPasswordModal = (userId) => {
-    setEditingUserId(userId);
-    setPasswordReset({ password: "", confirm_password: "" });
-    setShowPasswordModal(true);
   };
 
   const handlePasswordReset = async (e) => {
     e.preventDefault();
+    if (passwordReset.password !== passwordReset.confirm_password) {
+      showToast("Passwords do not match.", "danger");
+      return;
+    }
     try {
-      await api.patch(`/admin/users/${editingUserId}/reset-password/`, passwordReset);
-      setShowPasswordModal(false);
-      alert("Password updated successfully.");
+      await api.patch(`/admin/users/${selectedUser.user_id}/reset-password/`, passwordReset);
+      showToast("Password updated successfully.", "success");
+      closePasswordModal();
     } catch (err) {
-      console.error("Failed to reset password", err);
+      showToast("Failed to reset password.", "danger");
     }
   };
 
+  const openAddModal = () => {
+    setSelectedUser(null);
+    setFormUser({ name: "", email: "", password: "", bio: "", is_active: true, is_admin: false, profile_picture: null });
+    setShowModal(true);
+  };
+
+  const openEditModal = (user) => {
+    setSelectedUser(user);
+    setFormUser({
+      name: user.name || "", email: user.email, password: "", bio: user.bio || "",
+      is_active: user.is_active, is_admin: user.is_admin, profile_picture: null,
+    });
+    setShowModal(true);
+  };
+
+  const openPasswordModal = (user) => {
+    setSelectedUser(user);
+    setPasswordReset({ password: "", confirm_password: "" });
+    setShowPasswordModal(true);
+  };
+
+  const openConfirmModal = (user) => {
+    setSelectedUser(user);
+    setShowConfirmModal(true);
+  };
+
+  const closeModal = () => setShowModal(false);
+  const closePasswordModal = () => setShowPasswordModal(false);
+  const closeConfirmModal = () => setShowConfirmModal(false);
+
   return (
-    <div className="container mt-5">
-      <div className="d-flex justify-content-between mb-3">
-        <h2>User Management</h2>
-        <button className="btn btn-primary" onClick={openAddModal}>
-          ➕ Add User
-        </button>
-      </div>
+    <div className="admin-page-container">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+        <div className="admin-header">
+          <div>
+            <h2 className="page-title">User Management</h2>
+            <p className="page-subtitle">Add, edit, or remove users from the platform.</p>
+          </div>
+          <motion.button className="btn-add-user" onClick={openAddModal} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <FaUserPlus className="me-2" /> Add User
+          </motion.button>
+        </div>
+      </motion.div>
 
-      <table className="table table-bordered table-hover">
-        <thead className="table-dark">
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Admin</th>
-            <th>Active</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user) => (
-            <tr key={user.user_id}>
-              <td>{user.name || "N/A"}</td>
-              <td>{user.email}</td>
-              <td>
-                <button
-                  className={`btn btn-sm ${user.is_admin ? "btn-warning" : "btn-outline-warning"}`}
-                  onClick={() => toggleAdmin(user.user_id, user.is_admin)}
-                >
-                  {user.is_admin ? "Revoke Admin" : "Make Admin"}
-                </button>
-              </td>
-              <td>
-                <button
-                  className={`btn btn-sm ${user.is_active ? "btn-success" : "btn-outline-secondary"}`}
-                  onClick={() => toggleActive(user.user_id, user.is_active)}
-                >
-                  {user.is_active ? "Active" : "Inactive"}
-                </button>
-              </td>
-              <td>
-                <button
-                  className="btn btn-sm btn-info me-2"
-                  onClick={() => openEditModal(user)}
-                >
-                  ✏️ Edit
-                </button>
-                <button
-                  className="btn btn-sm btn-warning me-2"
-                  onClick={() => openPasswordModal(user.user_id)}
-                >
-                  🔐 Reset Password
-                </button>
-                <button
-                  className="btn btn-sm btn-danger"
-                  onClick={() => deleteUser(user.user_id)}
-                >
-                  Delete
-                </button>
-              </td>
+      <motion.div className="admin-table-container" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+        <table className="admin-table">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Status</th>
+              <th>Role</th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr><td colSpan="4" className="text-center p-4">Loading users...</td></tr>
+            ) : (
+              users.map((user) => (
+                <tr key={user.user_id}>
+                  <td>
+                    <div className="user-info">
+                      <img src={user.profile_picture || "https://cdn-icons-png.flaticon.com/512/847/847969.png"} alt={user.name} />
+                      <div>
+                        <strong>{user.name || "N/A"}</strong>
+                        <span>{user.email}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <button onClick={() => toggleStatus(user, 'is_active')} className={`status-badge ${user.is_active ? 'active' : 'inactive'}`}>
+                      {user.is_active ? <FaToggleOn /> : <FaToggleOff />}
+                      {user.is_active ? "Active" : "Inactive"}
+                    </button>
+                  </td>
+                  <td>
+                    <button onClick={() => toggleStatus(user, 'is_admin')} className={`role-badge ${user.is_admin ? 'admin' : 'user'}`}>
+                      {user.is_admin ? "Admin" : "User"}
+                    </button>
+                  </td>
+                  <td>
+                    <div className="action-buttons">
+                      <button className="action-btn edit" onClick={() => openEditModal(user)} title="Edit User"><FaEdit /></button>
+                      <button className="action-btn password" onClick={() => openPasswordModal(user)} title="Reset Password"><FaKey /></button>
+                      <button className="action-btn delete" onClick={() => openConfirmModal(user)} title="Delete User"><FaTrash /></button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </motion.div>
 
-      {/* Add/Edit Modal */}
-      {showModal && (
-        <div className="modal d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <form onSubmit={handleSubmit}>
-                <div className="modal-header">
-                  <h5 className="modal-title">{editingUserId ? "Edit User" : "Add User"}</h5>
-                  <button type="button" className="btn-close" onClick={closeModal}></button>
-                </div>
-                <div className="modal-body">
-                  <input
-                    type="text"
-                    name="name"
-                    className="form-control mb-2"
-                    placeholder="Name"
-                    value={formUser.name}
-                    onChange={handleInputChange}
-                    required
-                  />
-                  <input
-                    type="email"
-                    name="email"
-                    className="form-control mb-2"
-                    placeholder="Email"
-                    value={formUser.email}
-                    onChange={handleInputChange}
-                    required
-                    disabled={!!editingUserId}
-                  />
-                  {!editingUserId && (
-                    <input
-                      type="password"
-                      name="password"
-                      className="form-control mb-2"
-                      placeholder="Password"
-                      value={formUser.password}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  )}
-                  <textarea
-                    name="bio"
-                    className="form-control mb-2"
-                    placeholder="Bio"
-                    value={formUser.bio}
-                    onChange={handleInputChange}
-                  />
-                  <input
-                    type="file"
-                    name="profile_picture"
-                    className="form-control mb-2"
-                    onChange={handleFileChange}
-                  />
-                  <div className="form-check mb-2">
-                    <input
-                      type="checkbox"
-                      name="is_admin"
-                      className="form-check-input"
-                      checked={formUser.is_admin}
-                      onChange={handleCheckboxChange}
-                    />
-                    <label className="form-check-label">Is Admin?</label>
+      {/* --- MODALS --- */}
+      <AnimatePresence>
+        {(showModal || showPasswordModal || showConfirmModal) && (
+          <motion.div className="modal-backdrop-dark" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            
+            {/* Add/Edit Modal (Dark Theme) */}
+            {showModal && (
+              <motion.div className="modal-content-dark" initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -50, opacity: 0 }}>
+                <form onSubmit={handleSubmit}>
+                  <div className="modal-header-dark">
+                    <h5>{selectedUser ? "Edit User" : "Add New User"}</h5>
+                    <button type="button" className="btn-close-dark" onClick={closeModal}><FaTimes /></button>
                   </div>
-                  <div className="form-check">
-                    <input
-                      type="checkbox"
-                      name="is_active"
-                      className="form-check-input"
-                      checked={formUser.is_active}
-                      onChange={handleCheckboxChange}
-                    />
-                    <label className="form-check-label">Is Active?</label>
+                  <div className="modal-body-dark">
+                    <label>Full Name</label>
+                    <input type="text" name="name" value={formUser.name} onChange={(e) => setFormUser({...formUser, name: e.target.value})} required />
+                    <label>Email Address</label>
+                    <input type="email" name="email" value={formUser.email} onChange={(e) => setFormUser({...formUser, email: e.target.value})} required disabled={!!selectedUser} />
+                    {!selectedUser && <>
+                      <label>Password</label>
+                      <input type="password" name="password" value={formUser.password} onChange={(e) => setFormUser({...formUser, password: e.target.value})} required />
+                    </>}
+                    <label>Bio</label>
+                    <textarea name="bio" value={formUser.bio} onChange={(e) => setFormUser({...formUser, bio: e.target.value})} />
+                    <label>Profile Picture</label>
+                    <input className="form-control-dark" type="file" name="profile_picture" onChange={(e) => setFormUser({...formUser, profile_picture: e.target.files[0]})} />
+                    <div className="checkbox-group-dark">
+                      <div className="form-check-dark"><input type="checkbox" name="is_admin" checked={formUser.is_admin} onChange={(e) => setFormUser({...formUser, is_admin: e.target.checked})} /><label>Is Admin?</label></div>
+                      <div className="form-check-dark"><input type="checkbox" name="is_active" checked={formUser.is_active} onChange={(e) => setFormUser({...formUser, is_active: e.target.checked})} /><label>Is Active?</label></div>
+                    </div>
                   </div>
-                </div>
-                <div className="modal-footer">
-                  <button type="submit" className="btn btn-primary">
-                    {editingUserId ? "Update User" : "Add User"}
-                  </button>
-                  <button type="button" className="btn btn-secondary" onClick={closeModal}>
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
+                  <div className="modal-footer-dark">
+                    <button type="button" className="btn btn-secondary" onClick={closeModal}>Cancel</button>
+                    <button type="submit" className="btn btn-primary">{selectedUser ? "Update User" : "Add User"}</button>
+                  </div>
+                </form>
+              </motion.div>
+            )}
 
-      {/* Password Reset Modal */}
-      {showPasswordModal && (
-        <div className="modal d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <form onSubmit={handlePasswordReset}>
-                <div className="modal-header">
-                  <h5 className="modal-title">Reset Password</h5>
-                  <button type="button" className="btn-close" onClick={() => setShowPasswordModal(false)}></button>
+            {/* --- ADDED: Password Reset Modal --- */}
+            {showPasswordModal && (
+              <motion.div className="modal-content-dark" initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -50, opacity: 0 }}>
+                 <form onSubmit={handlePasswordReset}>
+                  <div className="modal-header-dark"><h5>Reset Password</h5><button type="button" className="btn-close-dark" onClick={closePasswordModal}><FaTimes /></button></div>
+                  <div className="modal-body-dark">
+                    <label>New Password</label>
+                    <input type="password" placeholder="Enter new password" value={passwordReset.password} onChange={(e) => setPasswordReset({ ...passwordReset, password: e.target.value })} required />
+                    <label>Confirm Password</label>
+                    <input type="password" placeholder="Confirm new password" value={passwordReset.confirm_password} onChange={(e) => setPasswordReset({ ...passwordReset, confirm_password: e.target.value })} required />
+                  </div>
+                  <div className="modal-footer-dark"><button type="button" className="btn btn-secondary" onClick={closePasswordModal}>Cancel</button><button type="submit" className="btn btn-primary">Update Password</button></div>
+                </form>
+              </motion.div>
+            )}
+             
+            {/* --- ADDED: Delete Confirmation Modal --- */}
+            {showConfirmModal && (
+              <motion.div className="modal-content-dark confirm-modal" initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -50, opacity: 0 }}>
+                <div className="modal-body-dark text-center">
+                  <div className="confirm-icon"><FaTrash/></div>
+                  <h5>Delete User</h5>
+                  <p>Are you sure you want to delete {selectedUser?.name}? This action cannot be undone.</p>
                 </div>
-                <div className="modal-body">
-                  <input
-                    type="password"
-                    name="password"
-                    className="form-control mb-2"
-                    placeholder="New Password"
-                    value={passwordReset.password}
-                    onChange={(e) => setPasswordReset({ ...passwordReset, password: e.target.value })}
-                    required
-                  />
-                  <input
-                    type="password"
-                    name="confirm_password"
-                    className="form-control"
-                    placeholder="Confirm Password"
-                    value={passwordReset.confirm_password}
-                    onChange={(e) => setPasswordReset({ ...passwordReset, confirm_password: e.target.value })}
-                    required
-                  />
+                <div className="modal-footer-dark confirm-footer">
+                  <button type="button" className="btn btn-secondary" onClick={closeConfirmModal}>Cancel</button>
+                  <button type="button" className="btn btn-danger" onClick={handleDeleteUser}>Yes, Delete</button>
                 </div>
-                <div className="modal-footer">
-                  <button type="submit" className="btn btn-primary">Update</button>
-                  <button type="button" className="btn btn-secondary" onClick={() => setShowPasswordModal(false)}>
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
+              </motion.div>
+            )}
+
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

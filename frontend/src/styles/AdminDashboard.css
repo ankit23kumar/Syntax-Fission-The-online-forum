@@ -1,7 +1,122 @@
-.admin-dashboard .card {
-  transition: transform 0.2s ease;
+/* src/styles/AdminDashboard.css */
+
+.admin-dashboard-container { 
+  padding: 1.5rem; /* Consistent padding */
 }
 
-.admin-dashboard .card:hover {
-  transform: translateY(-5px);
+/* --- NEW: Header Layout Styles --- */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap; /* Allows stacking on small screens */
+  gap: 1rem;
+  border-bottom: 1px solid #e9ecef;
+  padding-bottom: 1rem;
 }
+
+.page-title { 
+  font-size: 2rem; 
+  font-weight: 700; 
+  color: #212529;
+  margin-bottom: 0; /* Removed margin */
+}
+.page-subtitle { 
+  font-size: 1.1rem; 
+  color: #6c757d; 
+  margin-top: 0.25rem;
+}
+
+/* --- NEW: Profile Button Style --- */
+.btn-profile {
+  background-color: #17a2b8; /* Main site color */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+.btn-profile:hover {
+  background-color: #138496;
+  box-shadow: 0 4px 15px rgba(23, 162, 184, 0.2);
+  transform: translateY(-2px);
+}
+
+
+/* --- Existing Card Styles (Unchanged) --- */
+.admin-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-left: 5px solid;
+  transition: all 0.3s ease;
+}
+.admin-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+.card-content { flex-grow: 1; }
+.card-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem; }
+.card-text { font-size: 0.9rem; color: #6c757d; margin-bottom: 1rem; }
+.btn-view {
+  background: #e9ecef;
+  color: #495057;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 18px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+.admin-card:hover .btn-view {
+  color: #ffffff;
+}
+.card-icon {
+  font-size: 2.5rem;
+  margin-left: 1rem;
+  opacity: 0.5;
+  transition: all 0.3s ease;
+}
+.admin-card:hover .card-icon {
+  opacity: 1;
+  transform: scale(1.1);
+}
+/* Color Variants */
+.color-cyan { border-color: #17a2b8; }
+.color-cyan:hover { background-color: #e3f8fa; }
+.color-cyan .card-icon { color: #17a2b8; }
+.color-cyan:hover .btn-view { background-color: #17a2b8; }
+
+.color-green { border-color: #28a745; }
+.color-green:hover { background-color: #e3f9e7; }
+.color-green .card-icon { color: #28a745; }
+.color-green:hover .btn-view { background-color: #28a745; }
+
+.color-yellow { border-color: #ffc107; }
+.color-yellow:hover { background-color: #fff8e1; }
+.color-yellow .card-icon { color: #ffc107; }
+.color-yellow:hover .btn-view { background-color: #ffc107; }
+
+.color-grey { border-color: #6c757d; }
+.color-grey:hover { background-color: #f8f9fa; }
+.color-grey .card-icon { color: #6c757d; }
+.color-grey:hover .btn-view { background-color: #6c757d; }
+
+.color-blue { border-color: #0d6efd; }
+.color-blue:hover { background-color: #e7f0ff; }
+.color-blue .card-icon { color: #0d6efd; }
+.color-blue:hover .btn-view { background-color: #0d6efd; }
+
+.color-red { border-color: #dc3545; }
+.color-red:hover { background-color: #f8d7da; }
+.color-red .card-icon { color: #dc3545; }
+.color-red:hover .btn-view { background-color: #dc3545; }

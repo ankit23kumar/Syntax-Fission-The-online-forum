@@ -1,7 +1,6 @@
 // src/components/Navbar.jsx
 
 import React, { useState, useEffect } from "react";
-// +++ STEP 1: Import useLocation +++
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { IoSearch } from "react-icons/io5";
@@ -11,16 +10,16 @@ import logo from "../assets/logo_sf.png";
 import { motion, AnimatePresence } from "framer-motion";
 
 const Navbar = () => {
+  // Get the full user object to check for the is_admin flag
   const { user, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [searchVisible, setSearchVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
-  // +++ STEP 2: Get the current location +++
   const location = useLocation();
 
-  // Determine if we are on the homepage
+  // Determine if we are on the homepage for the transparent effect
   const isHomePage = location.pathname === '/';
 
   // Effect to handle scroll detection
@@ -30,7 +29,7 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Effect to lock body scroll when mobile menu is open
+  // Effect to lock body scroll when the mobile menu is open
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : 'auto';
   }, [isOpen]);
@@ -52,14 +51,24 @@ const Navbar = () => {
   };
 
   const closeMenu = () => setIsOpen(false);
-  
-  // Animation variants remain the same
-  const mobileMenuVariants = { /* ... no changes ... */ };
-  const mobileLinkVariants = { /* ... no changes ... */ };
+
+  // --- DEFINITIVE FIX FOR ADMIN REDIRECTION ---
+  // Dynamically determine the correct paths based on user role.
+  const dashboardPath = user?.is_admin ? "/admin/dashboard" : "/dashboard";
+  const profilePath = user?.is_admin ? "/admin/profile" : "/dashboard";
+
+  // Animation variants for the mobile menu
+  const mobileMenuVariants = {
+    open: { transition: { staggerChildren: 0.07, delayChildren: 0.2 } },
+    closed: { transition: { staggerChildren: 0.05, staggerDirection: -1 } }
+  };
+  const mobileLinkVariants = {
+    open: { y: 0, opacity: 1 },
+    closed: { y: 50, opacity: 0 }
+  };
 
   return (
     <>
-      {/* +++ STEP 3: Update the className logic +++ */}
       <header className={`navbar-wrapper ${(scrolled || !isHomePage) ? 'scrolled' : ''}`}>
         <div className="container navbar-container">
           {/* Left: Brand */}
@@ -81,7 +90,7 @@ const Navbar = () => {
 
           {/* Right: Actions */}
           <div className="navbar-right d-flex align-items-center">
-            {/* ... (The rest of your JSX code for the form, auth buttons, and mobile menu remains exactly the same) ... */}
+            {/* Desktop Search */}
             <form onSubmit={handleSearchSubmit} className="search-form d-none d-lg-flex" onMouseLeave={() => setSearchVisible(false)}>
               <motion.button type="button" className="search-icon-btn" onMouseEnter={() => setSearchVisible(true)} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                 <IoSearch size={18} />
@@ -97,6 +106,7 @@ const Navbar = () => {
               </AnimatePresence>
             </form>
             
+            {/* Desktop Auth */}
             <div className="auth-actions d-none d-lg-flex">
               {user ? (
                 <>
@@ -108,8 +118,8 @@ const Navbar = () => {
                       <span>{user.name || "User"}</span>
                     </button>
                     <ul className="dropdown-menu dropdown-menu-end shadow-sm">
-                      <li><Link className="dropdown-item" to="/dashboard">Dashboard</Link></li>
-                      <li><Link className="dropdown-item" to="/profile">Profile</Link></li>
+                      <li><Link className="dropdown-item" to={dashboardPath}>Dashboard</Link></li>
+                      <li><Link className="dropdown-item" to={profilePath}>Profile</Link></li>
                       <li><hr className="dropdown-divider" /></li>
                       <li><button className="dropdown-item text-danger" onClick={handleLogout}>Logout</button></li>
                     </ul>
@@ -123,6 +133,7 @@ const Navbar = () => {
               )}
             </div>
             
+            {/* Mobile Toggler */}
             <button className={`navbar-toggler d-lg-none ${isOpen ? 'open' : ''}`} onClick={() => setIsOpen(!isOpen)} aria-label="Toggle navigation">
               <div className="hamburger-icon"></div>
             </button>
@@ -130,7 +141,7 @@ const Navbar = () => {
         </div>
       </header>
       
-      {/* ... (The AnimatePresence block for the mobile menu is also unchanged) ... */}
+      {/* Full-Screen Mobile Menu */}
       <AnimatePresence>
         {isOpen && (
            <motion.nav
@@ -169,8 +180,8 @@ const Navbar = () => {
                   <img src={user.profile_picture || "https://cdn-icons-png.flaticon.com/512/847/847969.png"} alt="User" className="user-avatar-large" />
                   <strong>Welcome, {user.name || "User"}</strong>
                   <div className="d-flex flex-column align-items-center gap-3 mt-3">
-                    <Link onClick={closeMenu} to="/dashboard" className="mobile-link-small">Dashboard</Link>
-                    <Link onClick={closeMenu} to="/profile" className="mobile-link-small">Profile</Link>
+                    <Link onClick={closeMenu} to={dashboardPath} className="mobile-link-small">Dashboard</Link>
+                    <Link onClick={closeMenu} to={profilePath} className="mobile-link-small">Profile</Link>
                     <button onClick={handleLogout} className="btn btn-sm btn-outline-danger">Logout</button>
                   </div>
                 </motion.div>
