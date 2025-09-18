@@ -1,0 +1,68 @@
+/* src/styles/Footer.css */
+
+.footer-wrapper {
+  /* The dark, desaturated teal background from your design */
+  background-color: #1a2a33; 
+  color: #a0b0b9; /* A soft, light grey for text */
+  padding: 3rem 0;
+  border-top: 1px solid #3a4a53; /* Subtle top border */
+}
+
+.footer-container {
+  display: grid;
+  grid-template-columns: 1fr; /* Default to one column on mobile */
+  gap: 2rem;
+}
+
+/* On medium screens and up, switch to a three-column layout */
+@media (min-width: 768px) {
+  .footer-container {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* --- Brand Info (First Column) --- */
+.footer-brand h5 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #ffffff; /* White for the main title */
+  margin-bottom: 0.75rem;
+}
+
+.footer-brand p {
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* --- Link Sections (Second & Third Columns) --- */
+.footer-links h6 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.footer-links ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.footer-links a {
+  color: #a0b0b9; /* Match the default text color */
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: color 0.3s ease, transform 0.3s ease;
+  display: inline-block; /* Required for the transform effect */
+}
+
+/* The hover effect from your design */
+.footer-links a:hover {
+  color: #29c1e2; /* The brand's cyan color */
+  transform: translateX(5px);
+}
