@@ -7,6 +7,7 @@ import { MdOutlineEmail } from "react-icons/md";
 import { PiPasswordDuotone, PiPasswordFill } from "react-icons/pi";
 import { BiHide, BiShow, BiArrowBack } from "react-icons/bi";
 import { loginUser, loginWithGoogle } from "../services/authService";
+import { useAuth } from "../contexts/AuthContext";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -15,18 +16,30 @@ const Login = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
+  const { login } = useAuth();
 
-  const redirectAfterLogin = (userData) => {
-    localStorage.setItem("access", userData.access);
-    localStorage.setItem("refresh", userData.refresh);
-    localStorage.setItem("user", JSON.stringify(userData));
+    const redirectAfterLogin = (userData) => {
+    // --- THIS IS THE KEY CHANGE ---
+    // Instead of manually setting localStorage, we call the context's login function.
+    login(userData);
 
     setSuccessMessage("Login successful!");
     setTimeout(() => {
       setSuccessMessage("");
       navigate(userData.is_admin ? "/admin/dashboard" : "/dashboard");
-    }, 2000);
+    }, 1500); // A slightly shorter delay for a snappier feel
   };
+  // const redirectAfterLogin = (userData) => {
+  //   localStorage.setItem("access", userData.access);
+  //   localStorage.setItem("refresh", userData.refresh);
+  //   localStorage.setItem("user", JSON.stringify(userData));
+
+  //   setSuccessMessage("Login successful!");
+  //   setTimeout(() => {
+  //     setSuccessMessage("");
+  //     navigate(userData.is_admin ? "/admin/dashboard" : "/dashboard");
+  //   }, 2000);
+  // };
 
   const handleLogin = async (e) => {
     e.preventDefault();

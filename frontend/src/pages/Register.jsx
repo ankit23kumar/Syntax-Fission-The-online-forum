@@ -8,6 +8,7 @@ import registerIllustration from "../assets/authentication_rafiki.svg";
 import { registerUser, loginWithGoogle } from "../services/authService";
 import { useToast } from "../contexts/ToastContext";
 import OTPModal from "../components/OTPModal"; // Import the new OTP modal
+import { useAuth } from "../contexts/AuthContext";
 
 // Icons
 import { BiRename, BiArrowBack, BiShow, BiHide } from "react-icons/bi";
@@ -17,7 +18,7 @@ import { PiPasswordDuotone, PiPasswordFill } from "react-icons/pi";
 const Register = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
-
+  const { login } = useAuth();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -49,16 +50,25 @@ const Register = () => {
   };
 
   // This function is called by OTPModal upon successful verification (Step 2: Verification)
+  // const handleVerificationSuccess = (data) => {
+  //   // The /verify-otp/ endpoint returns tokens and user data upon success
+  //   const { access, refresh, user_id, name, email } = data;
+
+  //   // Save tokens to localStorage to log the user in
+  //   localStorage.setItem("access", access);
+  //   localStorage.setItem("refresh", refresh);
+  //   localStorage.setItem("user", JSON.stringify({ user_id, name, email }));
+
+  //   // Close the modal and navigate to the profile completion page (Step 3)
+  //   setShowOtpModal(false);
+  //   navigate("/register/step-2");
+  // };
   const handleVerificationSuccess = (data) => {
-    // The /verify-otp/ endpoint returns tokens and user data upon success
-    const { access, refresh, user_id, name, email } = data;
+    // --- THIS IS THE KEY CHANGE ---
+    // The OTP verification returns user data. We use the context's login function to set it.
+    login(data);
 
-    // Save tokens to localStorage to log the user in
-    localStorage.setItem("access", access);
-    localStorage.setItem("refresh", refresh);
-    localStorage.setItem("user", JSON.stringify({ user_id, name, email }));
-
-    // Close the modal and navigate to the profile completion page (Step 3)
+    // Close the modal and navigate to the profile completion page
     setShowOtpModal(false);
     navigate("/register/step-2");
   };
@@ -72,9 +82,10 @@ const Register = () => {
     }
     try {
       const res = await loginWithGoogle(idToken);
-      localStorage.setItem("access", res.data.access);
-      localStorage.setItem("refresh", res.data.refresh);
-      localStorage.setItem("user", JSON.stringify(res.data));
+      // localStorage.setItem("access", res.data.access);
+      // localStorage.setItem("refresh", res.data.refresh);
+      // localStorage.setItem("user", JSON.stringify(res.data));
+      login(res.data);
       showToast("Google sign-up successful!", "success");
       navigate("/dashboard");
     } catch (err) {
