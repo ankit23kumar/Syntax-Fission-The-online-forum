@@ -295,19 +295,50 @@ class EditUserProfileView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# class UserActivityView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request):
+#         user = request.user
+#         return Response({
+#             "total_questions": Question.objects.filter(user=user).count(),
+#             "total_answers": Answer.objects.filter(user=user).count(),
+#             "questions": QuestionTitleSerializer(Question.objects.filter(user=user), many=True).data,
+#             "answers": AnswerSummarySerializer(Answer.objects.filter(user=user), many=True).data,
+#         })
+from django.db.models import Sum, F, Count 
+
 class UserActivityView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         user = request.user
+        
+        # Get user's questions and answers
+        questions = Question.objects.filter(user=user)
+        answers = Answer.objects.filter(user=user)
+
+        # --- CORRECTED STATS CALCULATION ---
+        # Calculate total views by COUNTING the related ViewCount objects.
+        total_views = questions.aggregate(total=Count('viewcount'))['total'] or 0
+        
+        # Calculate total reputation from questions (this part was already correct)
+        question_rep = questions.aggregate(rep=Sum(F('upvotes') - F('downvotes')))['rep'] or 0
+        
+        # Calculate total reputation from answers (this part was also correct)
+        answer_rep = answers.aggregate(rep=Sum(F('upvotes') - F('downvotes')))['rep'] or 0
+
+        total_reputation = question_rep + answer_rep
+        # --- END OF CORRECTION ---
+
         return Response({
-            "total_questions": Question.objects.filter(user=user).count(),
-            "total_answers": Answer.objects.filter(user=user).count(),
-            "questions": QuestionTitleSerializer(Question.objects.filter(user=user), many=True).data,
-            "answers": AnswerSummarySerializer(Answer.objects.filter(user=user), many=True).data,
+            "total_questions": questions.count(),
+            "total_answers": answers.count(),
+            "total_views": total_views,
+            "total_reputation": total_reputation,
+            "questions": QuestionTitleSerializer(questions, many=True).data,
+            "answers": AnswerSummarySerializer(answers, many=True).data,
         })
-
-
 class UserAccountView(APIView):
     permission_classes = [IsAuthenticated]
 

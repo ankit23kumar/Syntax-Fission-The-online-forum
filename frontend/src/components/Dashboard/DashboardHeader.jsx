@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { getProfile } from '../../services/userService';
 import defaultAvatar from '../../assets/mention_rafiki.svg';
+import { motion } from 'framer-motion';
 
 const DashboardHeader = () => {
   const [profile, setProfile] = useState(null);
@@ -13,20 +14,27 @@ const DashboardHeader = () => {
   if (!profile) return null;
 
   return (
-    <div className="card p-4 shadow-sm border-0 mb-3">
-      <div className="d-flex justify-content-between align-items-start">
+    <motion.div
+      className="card p-4 shadow-sm mb-4 dashboard-header-card"
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <div className="d-flex justify-content-between align-items-center">
         <div>
-          <h3 className="fw-bold fs-2">Hello, {profile.name}</h3>
-          <h5 className="text-info fw-semibold fs-4 ">Enjoy on journey of Q&A</h5>
+          <h3 className="fw-bold">Hello, {profile.name}</h3>
+          <h5 className="fw-semibold">Enjoy on journey of Q&A</h5>
         </div>
-        <img
-          src= {defaultAvatar}
-          alt="defaultAvtar"
-          className="rectangle non-border"
-          style={{ width: '240px', height: '180px' }}
+        <motion.img
+          src={defaultAvatar}
+          alt="Dashboard Illustration"
+          style={{ width: '200px', height: 'auto' }}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
         />
       </div>
-    </div>
+    </motion.div>
   );
 };
 

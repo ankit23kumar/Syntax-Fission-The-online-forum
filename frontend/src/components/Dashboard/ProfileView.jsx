@@ -1,7 +1,8 @@
+// src/components/Dashboard/ProfileView.jsx
 import { useEffect, useState } from "react";
 import { getProfile } from "../../services/userService";
-import "../../styles/UserDashboard.css";
 import { RiVerifiedBadgeFill } from "react-icons/ri";
+import { motion } from 'framer-motion';
 
 const ProfileView = ({ onEditClick }) => {
   const [profile, setProfile] = useState(null);
@@ -14,8 +15,13 @@ const ProfileView = ({ onEditClick }) => {
   if (!profile) return <p>Loading...</p>;
 
   return (
-    <div className="card p-4 shadow-sm border-0">
-      <div className="d-flex justify-content-center">
+    <motion.div
+      className="card p-4 shadow-sm"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.4 }}
+    >
+      <div className="d-flex justify-content-center mb-4">
         <img
           src={
             profile.profile_picture?.startsWith("http")
@@ -23,44 +29,35 @@ const ProfileView = ({ onEditClick }) => {
               : `${BASE_URL}${profile.profile_picture}`
           }
           alt="Profile"
-          className="rounded-circle border"
-          style={{ width: "180px", height: "180px", objectFit: "cover" }}
+          className="rounded-circle profile-avatar"
         />
       </div>
 
-      <div className="mt-4">
-        <div className="mb-3">
-          <label className="form-label fw-semibold">Name</label>
-          <div className="form-control">{profile.name}</div>
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label fw-semibold">Email Address</label>
-          <div className="form-control d-flex justify-content-between align-items-center">
-            <span>{profile.email}</span>
-            {profile.is_active && (
-              <span className="badge bg-success d-flex align-items-center">
-                <RiVerifiedBadgeFill className="me-1" /> Verified
-              </span>
-            )}
-          </div>
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label fw-semibold">Bio</label>
-          <div className="form-control">{profile.bio || "No bio added."}</div>
-        </div>
-
-        <div className="mb-3 ">
-          <label className="form-label fw-semibold">Password</label>
-          <div className="form-control">{profile.password || "*********"}</div>
-        </div>
-
-        <button className="btn btn-info text-white mt-3" onClick={onEditClick}>
-          Edit Profile
-        </button>
+      <div className="mb-3">
+        <label className="form-label fw-semibold">Name</label>
+        <div className="form-control">{profile.name}</div>
       </div>
-    </div>
+      <div className="mb-3">
+        <label className="form-label fw-semibold">Email Address</label>
+        <div className="form-control d-flex justify-content-between align-items-center">
+          <span>{profile.email}</span>
+          {profile.is_active && (
+            <span className="badge bg-success d-flex align-items-center">
+              <RiVerifiedBadgeFill className="me-1" /> Verified
+            </span>
+          )}
+        </div>
+      </div>
+      <div className="mb-3">
+        <label className="form-label fw-semibold">Bio</label>
+        <div className="form-control" style={{ minHeight: '100px' }}>
+          {profile.bio || "No bio added."}
+        </div>
+      </div>
+      <button className="btn btn-info text-white mt-3" onClick={onEditClick}>
+        Edit Profile
+      </button>
+    </motion.div>
   );
 };
 
